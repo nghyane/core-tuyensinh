@@ -1,5 +1,5 @@
-import { logger } from "@config/logger";
 import { env } from "@config/env";
+import { logger } from "@config/logger";
 import { SQL } from "bun";
 
 /**
@@ -17,4 +17,3 @@ export const db = new SQL({
 export async function closeDatabaseConnection(): Promise<void> {
   await db.end();
 }
-

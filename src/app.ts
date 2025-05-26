@@ -6,13 +6,7 @@ import { secureHeaders } from "hono/secure-headers";
 import { timing } from "hono/timing";
 
 import { env } from "@config/env";
-import {
-  API_INFO,
-  ERROR_CODES,
-  HTTP_METHODS,
-  HTTP_STATUS,
-  OPENAPI_CONFIG,
-} from "@constants/app";
+import { ERROR_CODES, HTTP_METHODS } from "@constants/app";
 import { errorHandler } from "@middleware/errorHandler";
 import { pinoLogger } from "@middleware/logger";
 import { setupRoutes } from "@routes/index";
@@ -37,13 +31,7 @@ export function createApp() {
     "*",
     cors({
       origin: env.NODE_ENV === "development" ? "*" : env.CORS_ORIGINS,
-      allowMethods: [
-        HTTP_METHODS.GET,
-        HTTP_METHODS.POST,
-        HTTP_METHODS.PUT,
-        HTTP_METHODS.DELETE,
-        HTTP_METHODS.OPTIONS,
-      ],
+      allowMethods: [...HTTP_METHODS],
       allowHeaders: ["Content-Type", "Authorization"],
       credentials: true,
     })
@@ -71,18 +59,15 @@ export function createApp() {
 
   // 404 handler
   app.notFound((c) => {
-    return c.json(
-      {
-        error: {
-          code: ERROR_CODES.NOT_FOUND,
-          message: "The requested resource was not found",
-          path: c.req.path,
-          method: c.req.method,
-          timestamp: new Date().toISOString(),
-        },
+    return c.json({
+      error: {
+        code: ERROR_CODES.NOT_FOUND,
+        message: "The requested resource was not found",
+        path: c.req.path,
+        method: c.req.method,
+        timestamp: new Date().toISOString(),
       },
-      HTTP_STATUS.NOT_FOUND
-    );
+    });
   });
 
   app.onError(errorHandler);

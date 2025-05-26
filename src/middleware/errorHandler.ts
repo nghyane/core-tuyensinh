@@ -1,6 +1,6 @@
 import { AppError } from "@app-types/errors";
 import { env } from "@config/env";
-import { ERROR_CODES, HTTP_STATUS } from "@constants/app";
+import { ERROR_CODES } from "@constants/app";
 import { getLogger, getRequestId } from "@middleware/logger";
 import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
@@ -78,7 +78,7 @@ export const errorHandler = async (err: Error, c: Context) => {
           details,
         },
       },
-      HTTP_STATUS.BAD_REQUEST
+      400
     );
   }
 
@@ -134,7 +134,7 @@ export const errorHandler = async (err: Error, c: Context) => {
           err.stack && { stack: err.stack }),
       },
     },
-    HTTP_STATUS.INTERNAL_SERVER_ERROR
+    500
   );
 };
 
@@ -143,7 +143,7 @@ export const errorHandler = async (err: Error, c: Context) => {
  */
 export function throwError(
   message: string,
-  statusCode = HTTP_STATUS.INTERNAL_SERVER_ERROR,
+  statusCode = 500,
   code?: string
 ): never {
   throw new AppError(message, statusCode, true, code);

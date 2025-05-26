@@ -2,24 +2,12 @@
  * Application constants
  */
 
-// API Information
 export const API_INFO = {
   NAME: "AI Chatbot Backend API",
   VERSION: "1.0.0",
   DESCRIPTION: "Backend API service for AI Chatbot application",
-  RUNTIME: "Bun",
-  FRAMEWORK: "Hono",
 } as const;
 
-// HTTP Status Codes
-export const HTTP_STATUS = {
-  OK: 200,
-  BAD_REQUEST: 400,
-  NOT_FOUND: 404,
-  INTERNAL_SERVER_ERROR: 500,
-} as const;
-
-// Error Codes
 export const ERROR_CODES = {
   INTERNAL_ERROR: "INTERNAL_ERROR",
   VALIDATION_ERROR: "VALIDATION_ERROR",
@@ -29,10 +17,6 @@ export const ERROR_CODES = {
   GENERIC_ERROR: "GENERIC_ERROR",
 } as const;
 
-// Database Configuration - postgres.js reads from environment variables:
-// PGMAXCONNECTIONS, PGIDLE_TIMEOUT, PGCONNECT_TIMEOUT
-
-// OpenAPI Configuration
 export const OPENAPI_CONFIG = {
   VERSION: "3.0.0",
   PATHS: {
@@ -42,23 +26,15 @@ export const OPENAPI_CONFIG = {
   },
 } as const;
 
-// HTTP Methods
-export const HTTP_METHODS = {
-  GET: "GET",
-  POST: "POST",
-  PUT: "PUT",
-  DELETE: "DELETE",
-  OPTIONS: "OPTIONS",
-} as const;
-
-// Content Types
-export const CONTENT_TYPES = {
-  JSON: "application/json",
-  HTML: "text/html",
-} as const;
-
-// Health Status
 export const HEALTH_STATUS = {
   HEALTHY: "healthy",
   UNHEALTHY: "unhealthy",
 } as const;
+
+export const HTTP_METHODS = [
+  "GET",
+  "POST",
+  "PUT",
+  "DELETE",
+  "OPTIONS",
+] as const;
