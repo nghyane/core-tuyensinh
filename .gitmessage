@@ -1,0 +1,61 @@
+# Commit Message Template with Emojis
+# 
+# Format: <emoji> <type>: <subject>
+#
+# <body>
+#
+# <footer>
+
+# === EMOJI TYPES ===
+# ✨ :sparkles:      - New features
+# 🐛 :bug:           - Bug fixes  
+# 📝 :memo:          - Documentation
+# 🎨 :art:           - Code structure/format
+# ⚡ :zap:           - Performance improvements
+# 🔧 :wrench:        - Configuration files
+# 🚀 :rocket:        - Deployment
+# 🔒 :lock:          - Security
+# ♻️ :recycle:       - Refactoring
+# 🗑️ :wastebasket:   - Remove code/files
+# 🚚 :truck:         - Move/rename files
+# 📦 :package:       - Dependencies
+# 🏗️ :building_construction: - Architecture changes
+# 🧪 :test_tube:     - Tests
+# 💚 :green_heart:   - CI/CD
+# 📱 :iphone:        - Responsive design
+# 🌐 :globe_with_meridians: - Internationalization
+# 🔀 :twisted_rightwards_arrows: - Merge branches
+# ⏪ :rewind:        - Revert changes
+# 🔖 :bookmark:      - Release/version tags
+# 🚨 :rotating_light: - Fix linter warnings
+# 🚧 :construction:  - Work in progress
+# 💡 :bulb:          - New ideas
+# 🍱 :bento:         - Assets
+# ♿ :wheelchair:    - Accessibility
+# 💬 :speech_balloon: - Text/literals
+# 🗃️ :card_file_box: - Database
+# 🔊 :loud_sound:    - Logs
+# 🔇 :mute:          - Remove logs
+# 👥 :busts_in_silhouette: - Contributors
+# 🚸 :children_crossing: - UX/UI
+# 🏗️ :building_construction: - Architecture
+# 📸 :camera_flash:  - Snapshots
+# ⚗️ :alembic:       - Experiments
+# 🔍 :mag:           - SEO
+# 🏷️ :label:         - Types
+# 🌱 :seedling:      - Initial commit
+# 🚩 :triangular_flag_on_post: - Feature flags
+# 🥅 :goal_net:      - Error handling
+# 💫 :dizzy:         - Animations
+# 🗂️ :card_index_dividers: - Organization
+# 📄 :page_facing_up: - License
+
+# === EXAMPLES ===
+# ✨ feat: add user authentication system
+# 🐛 fix: resolve database connection timeout
+# 📝 docs: update API documentation
+# 🎨 style: format code with prettier
+# ♻️ refactor: restructure user service
+# 🔧 config: update docker compose settings
+# 🚀 deploy: setup production environment
+# 📦 deps: upgrade hono to v4.7.10

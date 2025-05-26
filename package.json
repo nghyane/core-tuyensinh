@@ -1,0 +1,33 @@
+{
+  "name": "chatbot-api",
+  "version": "1.0.0",
+  "description": "AI Chatbot Backend API with Bun + Hono + PostgreSQL + TypeScript",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+
+  "scripts": {
+    "start": "bun run dist/index.js",
+    "prepare": "husky || true"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@types/bun": "latest",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.0.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@hono/zod-openapi": "^0.19.6",
+    "@types/pino": "^7.0.5",
+    "hono": "^4.7.10",
+    "pino": "^9.7.0",
+    "pino-pretty": "^13.0.0",
+    "zod": "^3.25.28"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,json}": ["biome check --write --no-errors-on-unmatched"]
+  }
+}
