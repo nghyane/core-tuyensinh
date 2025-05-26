@@ -5,7 +5,7 @@
 
 import { env } from "@config/env";
 import { API_INFO, HEALTH_STATUS } from "@constants/app";
-import { getLogger } from "@middleware/logger";
+import { getLogger } from "@middleware/requestLogger";
 import type { Context } from "hono";
 
 /**

@@ -1,7 +1,7 @@
 import { AppError } from "@app-types/errors";
 import { env } from "@config/env";
 import { ERROR_CODES } from "@constants/app";
-import { getLogger, getRequestId } from "@middleware/logger";
+import { getLogger, getRequestId } from "@middleware/requestLogger";
 import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { ZodError } from "zod";

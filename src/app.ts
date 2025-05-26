@@ -8,7 +8,7 @@ import { timing } from "hono/timing";
 import { env } from "@config/env";
 import { ERROR_CODES, HTTP_METHODS } from "@constants/app";
 import { errorHandler } from "@middleware/errorHandler";
-import { pinoLogger } from "@middleware/logger";
+import { requestLogger } from "@middleware/requestLogger";
 import { setupRoutes } from "@routes/index";
 import { setupOpenAPIDoc } from "@utils/openapi";
 
@@ -41,7 +41,7 @@ export function createApp() {
   app.use("*", requestId());
 
   // 4. Logging (before routes for complete coverage)
-  app.use("*", pinoLogger);
+  app.use("*", requestLogger);
 
   // 5. Performance monitoring
   app.use("*", timing());
