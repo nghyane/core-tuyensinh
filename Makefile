@@ -6,7 +6,7 @@ PROJECT_NAME := personal-api-starter
 DOCKER_COMPOSE_DEV := docker/dev/docker-compose.yml
 BUILD_DIR := dist
 
-.PHONY: help install dev test build clean services-up services-down db-reset setup start fix
+.PHONY: help install dev test build clean services-up services-down services-status db-reset setup start fix direnv-setup
 
 help: ## Show available commands
 	echo 'Usage: make [target]'
@@ -56,18 +56,38 @@ services-up: ## Start development services
 	echo "🐳 Starting development services..."
 	docker-compose -f $(DOCKER_COMPOSE_DEV) up -d
 	echo "⏳ Waiting for services to be ready..."
-	sleep 5
+	echo "📊 Checking service health..."
+	for i in $$(seq 1 30); do \
+		if docker-compose -f $(DOCKER_COMPOSE_DEV) ps | grep -q "healthy"; then \
+			echo "✅ Services are ready!"; \
+			break; \
+		fi; \
+		echo "⏳ Services starting... (attempt $$i/30)"; \
+		sleep 2; \
+	done
 
 services-down: ## Stop development services
 	echo "🛑 Stopping development services..."
 	docker-compose -f $(DOCKER_COMPOSE_DEV) down
+
+services-status: ## Check development services status
+	echo "📊 Checking services status..."
+	docker-compose -f $(DOCKER_COMPOSE_DEV) ps
 
 db-reset: ## Reset database
 	echo "🗄️  Resetting database..."
 	docker-compose -f $(DOCKER_COMPOSE_DEV) down -v
 	docker-compose -f $(DOCKER_COMPOSE_DEV) up -d postgres
 	echo "⏳ Waiting for database to be ready..."
-	sleep 10
+	echo "📊 Checking database health..."
+	for i in $$(seq 1 15); do \
+		if docker-compose -f $(DOCKER_COMPOSE_DEV) ps postgres | grep -q "healthy"; then \
+			echo "✅ Database is ready!"; \
+			break; \
+		fi; \
+		echo "⏳ Database starting... (attempt $$i/15)"; \
+		sleep 2; \
+	done
 
 # Project setup
 setup: install ## Initial project setup
@@ -78,9 +98,42 @@ setup: install ## Initial project setup
 	else \
 		echo "📄 .env already exists"; \
 	fi
+	echo "🔧 Setting up direnv..."
+	if command -v direnv >/dev/null 2>&1; then \
+		if [ ! -f .envrc ]; then \
+			echo "⚠️  .envrc file not found"; \
+		else \
+			direnv allow .; \
+			echo "✅ direnv configured and allowed"; \
+		fi \
+	else \
+		echo "⚠️  direnv not installed. Install with: brew install direnv"; \
+		echo "💡 Add 'eval \"\$$(direnv hook bash)\"' to your shell config"; \
+	fi
 	$(MAKE) services-up
 	echo "✅ Project setup complete!"
 	echo "🚀 Run 'make dev' to start development"
+
+# Environment setup
+direnv-setup: ## Setup and configure direnv
+	echo "🔧 Setting up direnv..."
+	if command -v direnv >/dev/null 2>&1; then \
+		if [ ! -f .envrc ]; then \
+			echo "❌ .envrc file not found"; \
+			exit 1; \
+		else \
+			direnv allow .; \
+			echo "✅ direnv configured and allowed"; \
+			echo "💡 Environment variables will be loaded automatically"; \
+		fi \
+	else \
+		echo "❌ direnv not installed"; \
+		echo "📦 Install with: brew install direnv"; \
+		echo "🔧 Add to your shell config:"; \
+		echo "   # For bash: echo 'eval \"\$$(direnv hook bash)\"' >> ~/.bashrc"; \
+		echo "   # For zsh:  echo 'eval \"\$$(direnv hook zsh)\"' >> ~/.zshrc"; \
+		exit 1; \
+	fi
 
 # Production
 start: build ## Start production server locally
