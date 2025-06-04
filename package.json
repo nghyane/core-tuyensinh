@@ -5,7 +5,6 @@
   "module": "index.ts",
   "type": "module",
   "private": true,
-
   "scripts": {
     "start": "bun run dist/index.js",
     "prepare": "husky || true"

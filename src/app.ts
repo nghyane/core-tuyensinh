@@ -1,16 +1,15 @@
+import { env } from "@config/env";
+import { ERROR_CODES, HTTP_METHODS } from "@constants/app";
 import { OpenAPIHono } from "@hono/zod-openapi";
+import { errorHandler } from "@middleware/error.middleware";
+import { requestLogger } from "@middleware/request-logger.middleware";
+import { setupRoutes } from "@routes/index";
+import { setupOpenAPIDoc } from "@utils/open-api.config";
 import { cors } from "hono/cors";
 import { prettyJSON } from "hono/pretty-json";
 import { requestId } from "hono/request-id";
 import { secureHeaders } from "hono/secure-headers";
 import { timing } from "hono/timing";
-
-import { env } from "@config/env";
-import { ERROR_CODES, HTTP_METHODS } from "@constants/app";
-import { errorHandler } from "@middleware/errorHandler";
-import { requestLogger } from "@middleware/requestLogger";
-import { setupRoutes } from "@routes/index";
-import { setupOpenAPIDoc } from "@utils/openapi";
 
 /**
  * Create and configure the Hono application

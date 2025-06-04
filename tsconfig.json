@@ -23,6 +23,7 @@
       "@handlers/*": ["src/handlers/*"],
       "@middleware/*": ["src/middleware/*"],
       "@routes/*": ["src/routes/*"],
+      "@services/*": ["src/services/*"],
       "@app-types/*": ["src/types/*"],
       "@schemas/*": ["src/schemas/*"],
       "@utils/*": ["src/utils/*"]

@@ -13,6 +13,7 @@ const envSchema = z.object({
     .string()
     .optional()
     .transform((val) => (val ? val.split(",").map((s) => s.trim()) : [])),
+  JWT_SECRET: z.string().min(32, "JWT secret must be at least 32 characters"),
 });
 
 /**

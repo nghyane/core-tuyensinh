@@ -3,7 +3,7 @@
 ## Imports
 ```typescript
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
-import { getLogger } from "@middleware/requestLogger";
+import { getLogger } from "@middleware/request-logger.middleware";
 import { NotFoundError } from "@app-types/errors";
 import type { Context } from "hono";
 ```
