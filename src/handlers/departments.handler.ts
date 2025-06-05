@@ -20,7 +20,7 @@ export const getDepartmentsHandler = async (c: Context) => {
  * Get department by ID handler
  */
 export const getDepartmentHandler = async (c: Context) => {
-  const { id } = c.req.valid("param");
+  const id = c.req.param("id");
   const department = await departmentsService.findById(id);
 
   if (!department) {
@@ -34,7 +34,7 @@ export const getDepartmentHandler = async (c: Context) => {
  * Create department handler
  */
 export const createDepartmentHandler = async (c: Context) => {
-  const data = c.req.valid("json");
+  const data = await c.req.json();
   const department = await departmentsService.create(data);
   return c.json({ data: department }, 201);
 };
@@ -43,8 +43,8 @@ export const createDepartmentHandler = async (c: Context) => {
  * Update department handler
  */
 export const updateDepartmentHandler = async (c: Context) => {
-  const { id } = c.req.valid("param");
-  const data = c.req.valid("json");
+  const id = c.req.param("id");
+  const data = await c.req.json();
   const department = await departmentsService.update(id, data);
   return c.json({ data: department }, 200);
 };
@@ -53,7 +53,7 @@ export const updateDepartmentHandler = async (c: Context) => {
  * Delete department handler
  */
 export const deleteDepartmentHandler = async (c: Context) => {
-  const { id } = c.req.valid("param");
+  const id = c.req.param("id");
   await departmentsService.delete(id);
   return c.json({ message: "Department deleted successfully" }, 200);
 };

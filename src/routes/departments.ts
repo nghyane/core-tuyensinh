@@ -13,6 +13,7 @@ import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
 import { authMiddleware, requireAdmin } from "@middleware/auth";
 import {
   createDepartmentSchema,
+  departmentDeleteResponseSchema,
   departmentErrorSchema,
   departmentParamsSchema,
   departmentResponseSchema,
@@ -75,8 +76,9 @@ const getDepartmentRoute = createRoute({
 const createDepartmentRoute = createRoute({
   method: "post",
   path: "/api/v1/departments",
+  middleware: [authMiddleware, requireAdmin] as const,
   summary: "Create department",
-  description: "Create a new department (admin only)",
+  description: "Create a new department",
   tags: ["Departments"],
   request: {
     body: {
@@ -111,8 +113,9 @@ const createDepartmentRoute = createRoute({
 const updateDepartmentRoute = createRoute({
   method: "put",
   path: "/api/v1/departments/{id}",
+  middleware: [authMiddleware, requireAdmin] as const,
   summary: "Update department",
-  description: "Update an existing department (admin only)",
+  description: "Update an existing department",
   tags: ["Departments"],
   request: {
     params: departmentParamsSchema,
@@ -148,6 +151,7 @@ const updateDepartmentRoute = createRoute({
 const deleteDepartmentRoute = createRoute({
   method: "delete",
   path: "/api/v1/departments/{id}",
+  middleware: [authMiddleware, requireAdmin] as const,
   summary: "Delete department",
   description: "Soft delete a department (admin only)",
   tags: ["Departments"],
@@ -158,12 +162,7 @@ const deleteDepartmentRoute = createRoute({
     200: {
       content: {
         "application/json": {
-          schema: {
-            type: "object",
-            properties: {
-              message: { type: "string" },
-            },
-          },
+          schema: departmentDeleteResponseSchema,
         },
       },
       description: "Department deleted successfully",
@@ -179,13 +178,11 @@ const deleteDepartmentRoute = createRoute({
   },
 });
 
-// Register public routes
+// Public routes
 app.openapi(getDepartmentsRoute, getDepartmentsHandler);
 app.openapi(getDepartmentRoute, getDepartmentHandler);
 
-// Register protected routes (admin only)
-app.use("*", authMiddleware);
-app.use("*", requireAdmin);
+// Protected routes (admin only) - middleware defined in route definitions
 app.openapi(createDepartmentRoute, createDepartmentHandler);
 app.openapi(updateDepartmentRoute, updateDepartmentHandler);
 app.openapi(deleteDepartmentRoute, deleteDepartmentHandler);

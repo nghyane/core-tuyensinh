@@ -20,9 +20,5 @@ export function setupRoutes(app: OpenAPIHono) {
   // Departments routes
   app.route("/", departmentsRoutes);
 
-  // Add more route modules here as your API grows
-  // Example: app.route('/api/users', userRoutes);
-  // Example: app.route('/api/chats', chatRoutes);
-
   return app;
 }

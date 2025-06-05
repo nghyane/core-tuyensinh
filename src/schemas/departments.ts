@@ -67,3 +67,8 @@ export const departmentErrorSchema = z.object({
 export const departmentParamsSchema = z.object({
   id: z.string().uuid("Invalid department ID format"),
 });
+
+// Delete response schema
+export const departmentDeleteResponseSchema = z.object({
+  message: z.string(),
+});
