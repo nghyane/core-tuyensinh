@@ -1,16 +1,14 @@
 -- =====================================================
 -- POSTGRESQL EXTENSIONS SETUP
--- Version: 1.0.0
--- Date: 2025-01-27
 -- Purpose: Enable required PostgreSQL extensions
 -- =====================================================
 
--- ✅ ENABLE CORE EXTENSIONS
+-- Enable core extensions
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";    -- UUID generation functions
 CREATE EXTENSION IF NOT EXISTS pg_trgm;        -- Trigram matching for text search
 CREATE EXTENSION IF NOT EXISTS btree_gist;     -- Additional B-tree operators
 
--- ✅ EXTENSION VERIFICATION
+-- Extension verification
 DO $$
 BEGIN
     -- Verify extensions are loaded

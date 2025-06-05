@@ -8,12 +8,12 @@ import type { Context } from "hono";
 // Create service instance
 const departmentsService = new DepartmentsService();
 
-/**
- * Get all departments handler
- */
 export const getDepartmentsHandler = async (c: Context) => {
-  const departments = await departmentsService.findAll();
-  return c.json({ data: departments }, 200);
+  const limit = Number(c.req.query("limit")) || 100;
+  const offset = Number(c.req.query("offset")) || 0;
+
+  const result = await departmentsService.findAll(limit, offset);
+  return c.json(result, 200);
 };
 
 /**
@@ -56,4 +56,12 @@ export const deleteDepartmentHandler = async (c: Context) => {
   const id = c.req.param("id");
   await departmentsService.delete(id);
   return c.json({ message: "Department deleted successfully" }, 200);
+};
+
+/**
+ * Get departments summary handler
+ */
+export const getDepartmentsSummaryHandler = async (c: Context) => {
+  const summary = await departmentsService.getSummary();
+  return c.json({ data: summary }, 200);
 };

@@ -48,6 +48,21 @@ export const updateDepartmentSchema = z.object({
   is_active: z.boolean().optional(),
 });
 
+// Pagination metadata schema
+export const paginationMetaSchema = z.object({
+  total: z.number(),
+  limit: z.number(),
+  offset: z.number(),
+  has_next: z.boolean(),
+  has_prev: z.boolean(),
+});
+
+// Query parameters schema for pagination
+export const departmentsQuerySchema = z.object({
+  limit: z.coerce.number().int().min(1).max(100).default(100).optional(),
+  offset: z.coerce.number().int().min(0).default(0).optional(),
+});
+
 // Response schemas
 export const departmentResponseSchema = z.object({
   data: departmentPublicSchema,
@@ -55,6 +70,7 @@ export const departmentResponseSchema = z.object({
 
 export const departmentsResponseSchema = z.object({
   data: z.array(departmentPublicSchema),
+  meta: paginationMetaSchema,
 });
 
 // Error schema

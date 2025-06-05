@@ -17,6 +17,7 @@ import {
   departmentErrorSchema,
   departmentParamsSchema,
   departmentResponseSchema,
+  departmentsQuerySchema,
   departmentsResponseSchema,
   updateDepartmentSchema,
 } from "@schemas/departments";
@@ -28,8 +29,11 @@ const getDepartmentsRoute = createRoute({
   method: "get",
   path: "/api/v1/departments",
   summary: "Get all departments",
-  description: "Retrieve all active departments",
+  description: "Retrieve all active departments with pagination support",
   tags: ["Departments"],
+  request: {
+    query: departmentsQuerySchema,
+  },
   responses: {
     200: {
       content: {
@@ -37,7 +41,7 @@ const getDepartmentsRoute = createRoute({
           schema: departmentsResponseSchema,
         },
       },
-      description: "List of departments",
+      description: "Paginated list of departments with metadata",
     },
   },
 });

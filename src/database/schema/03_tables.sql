@@ -1,11 +1,9 @@
 -- =====================================================
--- FPT UNIVERSITY 2025 - DATABASE SCHEMA
--- Version: 1.0.0
--- Date: 2025-01-27
+-- FPT UNIVERSITY 2025 - DATABASE TABLES
 -- Purpose: Core database schema for FPT University system
 -- =====================================================
 
--- ✅ CORE TABLES
+-- CORE TABLES
 
 -- Departments table
 CREATE TABLE departments (
@@ -114,7 +112,7 @@ CREATE TABLE program_campus_availability (
     UNIQUE(program_id, campus_id, year)
 );
 
--- ✅ APPLICATION SYSTEM TABLES
+-- APPLICATION SYSTEM TABLES
 
 -- Users table for authentication
 CREATE TABLE users (
@@ -171,7 +169,7 @@ CREATE TABLE application_documents (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- ✅ CHATBOT SYSTEM TABLES
+-- CHATBOT SYSTEM TABLES
 
 -- Chatbot conversations for session management
 CREATE TABLE chatbot_conversations (

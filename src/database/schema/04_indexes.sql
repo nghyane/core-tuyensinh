@@ -1,11 +1,9 @@
 -- =====================================================
 -- INDEXES AND CONSTRAINTS
--- Version: 1.0.0
--- Date: 2025-01-27
 -- Purpose: Performance indexes and data integrity constraints
 -- =====================================================
 
--- ✅ CRITICAL INDEXES: Foreign Keys (Performance Critical)
+-- CRITICAL INDEXES: Foreign Keys (Performance Critical)
 CREATE INDEX idx_progressive_tuition_program_id ON progressive_tuition(program_id);
 CREATE INDEX idx_progressive_tuition_campus_id ON progressive_tuition(campus_id);
 CREATE INDEX idx_program_campus_program_id ON program_campus_availability(program_id);
@@ -13,12 +11,12 @@ CREATE INDEX idx_program_campus_campus_id ON program_campus_availability(campus_
 CREATE INDEX idx_foundation_fees_campus_id ON foundation_fees(campus_id);
 CREATE INDEX idx_programs_department_id ON programs(department_id);
 
--- ✅ QUERY PERFORMANCE INDEXES
+-- QUERY PERFORMANCE INDEXES
 CREATE INDEX idx_progressive_tuition_year ON progressive_tuition(year);
 CREATE INDEX idx_scholarships_year ON scholarships(year);
 CREATE INDEX idx_departments_code ON departments(code);
 
--- ✅ APPLICATION SYSTEM INDEXES
+-- APPLICATION SYSTEM INDEXES
 CREATE INDEX idx_applications_program_id ON applications(program_id);
 CREATE INDEX idx_applications_campus_id ON applications(campus_id);
 CREATE INDEX idx_applications_admission_method_id ON applications(admission_method_id);
@@ -40,7 +38,7 @@ CREATE INDEX idx_users_role ON users(role);
 CREATE INDEX idx_application_documents_application_id ON application_documents(application_id);
 CREATE INDEX idx_application_documents_type ON application_documents(document_type);
 
--- ✅ CHATBOT SYSTEM INDEXES
+-- CHATBOT SYSTEM INDEXES
 CREATE INDEX idx_chatbot_conversations_session_id ON chatbot_conversations(session_id);
 CREATE INDEX idx_chatbot_conversations_started_at ON chatbot_conversations(started_at);
 CREATE INDEX idx_chatbot_conversations_application_id ON chatbot_conversations(created_application_id);
@@ -63,7 +61,14 @@ CREATE INDEX idx_chatbot_analytics_type ON chatbot_analytics(metric_type);
 CREATE INDEX idx_chatbot_analytics_date_type ON chatbot_analytics(metric_date, metric_type);
 CREATE INDEX idx_chatbot_analytics_metadata ON chatbot_analytics USING gin(metadata);
 
--- ✅ DATA INTEGRITY CONSTRAINTS (Critical for Data Protection)
+-- SEARCH OPTIMIZATION INDEXES
+CREATE INDEX idx_programs_name_trgm ON programs USING gin(name gin_trgm_ops);
+CREATE INDEX idx_programs_name_en_trgm ON programs USING gin(name_en gin_trgm_ops) WHERE name_en IS NOT NULL;
+CREATE INDEX idx_departments_name_trgm ON departments USING gin(name gin_trgm_ops);
+CREATE INDEX idx_programs_departments_active ON programs(department_id, is_active) WHERE is_active = true;
+CREATE INDEX idx_programs_code_lower ON programs(LOWER(code));
+
+-- DATA INTEGRITY CONSTRAINTS (Critical for Data Protection)
 
 -- Progressive tuition constraints
 ALTER TABLE progressive_tuition ADD CONSTRAINT chk_semester_fees_positive
@@ -98,7 +103,7 @@ ALTER TABLE progressive_tuition ADD CONSTRAINT chk_year_valid
 ALTER TABLE admission_methods ADD CONSTRAINT chk_year_valid_admission
     CHECK (year >= 2020 AND year <= 2035);
 
--- ✅ CHATBOT SYSTEM CONSTRAINTS
+-- CHATBOT SYSTEM CONSTRAINTS
 
 -- Chatbot conversations constraints
 ALTER TABLE chatbot_conversations ADD CONSTRAINT chk_satisfaction_rating_valid

@@ -1,11 +1,8 @@
 -- =====================================================
 -- CUSTOM FUNCTIONS LIBRARY
--- Version: 1.0.0
--- Date: 2025-01-27
 -- Purpose: Custom PostgreSQL functions for enhanced functionality
 -- =====================================================
 
--- ✅ UUID FUNCTIONS (PostgreSQL 17 Enhanced Support)
 -- UUIDv8 with microsecond precision - optimal for all use cases
 CREATE OR REPLACE FUNCTION uuid_generate_v8()
 RETURNS uuid
@@ -35,8 +32,6 @@ END
 $$
 LANGUAGE plpgsql
 VOLATILE;
-
--- ✅ UTILITY FUNCTIONS
 
 -- Extract timestamp from UUIDv8
 CREATE OR REPLACE FUNCTION uuid_extract_timestamp_ms(uuid_val uuid)
@@ -90,7 +85,7 @@ $$
 LANGUAGE plpgsql
 VOLATILE;
 
--- ✅ FUNCTION VERIFICATION
+-- Function verification
 DO $$
 BEGIN
     -- Test UUIDv8 function

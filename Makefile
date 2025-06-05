@@ -6,7 +6,7 @@ PROJECT_NAME := personal-api-starter
 DOCKER_COMPOSE_DEV := docker/dev/docker-compose.yml
 BUILD_DIR := dist
 
-.PHONY: help install dev test build clean services-up services-down services-status db-reset setup start fix direnv-setup
+.PHONY: help install dev test build clean services-up services-down services-status db-reset setup start fix direnv-setup db-init db-seed db-setup db-reset
 
 help: ## Show available commands
 	echo 'Usage: make [target]'
@@ -74,20 +74,7 @@ services-status: ## Check development services status
 	echo "📊 Checking services status..."
 	docker-compose -f $(DOCKER_COMPOSE_DEV) ps
 
-db-reset: ## Reset database
-	echo "🗄️  Resetting database..."
-	docker-compose -f $(DOCKER_COMPOSE_DEV) down -v
-	docker-compose -f $(DOCKER_COMPOSE_DEV) up -d postgres
-	echo "⏳ Waiting for database to be ready..."
-	echo "📊 Checking database health..."
-	for i in $$(seq 1 15); do \
-		if docker-compose -f $(DOCKER_COMPOSE_DEV) ps postgres | grep -q "healthy"; then \
-			echo "✅ Database is ready!"; \
-			break; \
-		fi; \
-		echo "⏳ Database starting... (attempt $$i/15)"; \
-		sleep 2; \
-	done
+
 
 # Project setup
 setup: install ## Initial project setup
@@ -133,6 +120,42 @@ direnv-setup: ## Setup and configure direnv
 		echo "   # For bash: echo 'eval \"\$$(direnv hook bash)\"' >> ~/.bashrc"; \
 		echo "   # For zsh:  echo 'eval \"\$$(direnv hook zsh)\"' >> ~/.zshrc"; \
 		exit 1; \
+	fi
+
+# Database Management (Optimized scripts)
+db-init: ## Initialize database with schema
+	@if [ -f .env ]; then \
+		set -a && source .env && set +a; \
+		if [ -z "$$DATABASE_URL" ]; then \
+			echo "❌ DATABASE_URL not set in .env file"; exit 1; \
+		fi; \
+		./scripts/db-init.sh; \
+	else \
+		echo "❌ .env file not found. Run 'make setup' first."; exit 1; \
+	fi
+
+db-seed: ## Populate database with seed data
+	@if [ -f .env ]; then \
+		set -a && source .env && set +a; \
+		if [ -z "$$DATABASE_URL" ]; then \
+			echo "❌ DATABASE_URL not set in .env file"; exit 1; \
+		fi; \
+		./scripts/db-seed.sh; \
+	else \
+		echo "❌ .env file not found. Run 'make setup' first."; exit 1; \
+	fi
+
+db-setup: db-init db-seed ## Complete database setup (init + seed)
+
+db-reset: ## Reset database (drop all tables)
+	@if [ -f .env ]; then \
+		set -a && source .env && set +a; \
+		if [ -z "$$DATABASE_URL" ]; then \
+			echo "❌ DATABASE_URL not set in .env file"; exit 1; \
+		fi; \
+		./scripts/db-reset.sh; \
+	else \
+		echo "❌ .env file not found. Run 'make setup' first."; exit 1; \
 	fi
 
 # Production

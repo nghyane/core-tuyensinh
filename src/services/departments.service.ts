@@ -1,5 +1,6 @@
 /**
  * Department service - Business logic for department operations
+ * Optimized with PostgreSQL stored functions and views
  */
 
 import type {
@@ -9,124 +10,125 @@ import type {
   UpdateDepartmentRequest,
 } from "@app-types/departments";
 import { db } from "@config/database";
-import { HTTPException } from "hono/http-exception";
+import { z } from "zod";
+import {
+  BaseService,
+  type PaginatedResponse,
+  commonSchemas,
+} from "./base.service";
 
-export class DepartmentsService {
+export class DepartmentsService extends BaseService<
+  DepartmentPublic,
+  CreateDepartmentRequest,
+  UpdateDepartmentRequest
+> {
+  protected readonly tableName = "departments";
+
   /**
-   * Get all active departments
+   * Zod schemas for validation and transformation
    */
-  async findAll(): Promise<DepartmentPublic[]> {
-    const departments = await db`
-      SELECT id, code, name, name_en, description
-      FROM departments 
-      WHERE is_active = true 
-      ORDER BY name
-    `;
-    return departments;
+  protected readonly publicSchema = z.object({
+    id: commonSchemas.uuid,
+    code: z.string(),
+    name: z.string(),
+    name_en: commonSchemas.optionalString,
+    description: commonSchemas.optionalString,
+  });
+
+  protected readonly createSchema = z.object({
+    code: z.string(),
+    name: z.string(),
+    name_en: z.string().optional(),
+    description: z.string().optional(),
+  });
+
+  protected readonly updateSchema = z.object({
+    code: z.string().optional(),
+    name: z.string().optional(),
+    name_en: z.string().optional(),
+    description: z.string().optional(),
+    is_active: z.boolean().optional(),
+  });
+
+  async findAll(
+    limit = 100,
+    offset = 0
+  ): Promise<PaginatedResponse<DepartmentPublic>> {
+    const [dataRows, countRows] = await Promise.all([
+      db`
+        SELECT * FROM get_departments_with_pagination(
+          ${limit},
+          ${offset}
+        )
+      `,
+      db`
+        SELECT get_departments_count() as total
+      `,
+    ]);
+
+    const total = this.extractTotal(countRows);
+    const data = this.parseMany(dataRows);
+
+    return this.createPaginatedResponse(data, total, limit, offset);
   }
 
-  /**
-   * Get department by ID
-   */
   async findById(id: string): Promise<DepartmentPublic | null> {
     const [department] = await db`
-      SELECT id, code, name, name_en, description
-      FROM departments 
-      WHERE id = ${id} AND is_active = true
+      SELECT * FROM get_department_by_id(${id})
     `;
-    return department || null;
+    return department ? this.parseOne(department) : null;
   }
 
-  /**
-   * Get department by code
-   */
-  async findByCode(code: string): Promise<Department | null> {
+  async findByCode(code: string): Promise<Department | undefined> {
     const [department] = await db`
       SELECT id, code, name, name_en, description, is_active, created_at, updated_at
-      FROM departments 
-      WHERE code = ${code}
+      FROM departments
+      WHERE code = ${code} AND is_active = true
     `;
-    return department || null;
-  }
-
-  /**
-   * Create new department
-   */
-  async create(data: CreateDepartmentRequest): Promise<DepartmentPublic> {
-    // Check if department with same code already exists
-    const existing = await this.findByCode(data.code);
-    if (existing) {
-      throw new HTTPException(409, {
-        message: `Department with code '${data.code}' already exists`,
-      });
-    }
-
-    const [department] = await db`
-      INSERT INTO departments (code, name, name_en, description)
-      VALUES (${data.code}, ${data.name}, ${data.name_en || null}, ${data.description || null})
-      RETURNING id, code, name, name_en, description
-    `;
-
     return department;
   }
 
-  /**
-   * Update department by ID
-   */
+  async getSummary(): Promise<any> {
+    const [summary] = await db`
+      SELECT * FROM v_departments_summary
+    `;
+    return summary;
+  }
+
+  async create(data: CreateDepartmentRequest): Promise<DepartmentPublic> {
+    const [department] = await db`
+      SELECT * FROM create_department_with_validation(
+        ${data.code},
+        ${data.name},
+        ${data.name_en},
+        ${data.description}
+      )
+    `;
+
+    return this.parseOne(department);
+  }
+
   async update(
     id: string,
     data: UpdateDepartmentRequest
   ): Promise<DepartmentPublic> {
-    // Check if department exists
-    const existing = await this.findById(id);
-    if (!existing) {
-      throw new HTTPException(404, {
-        message: "Department not found",
-      });
-    }
-
-    // Check if code is being changed and if new code already exists
-    if (data.code && data.code !== existing.code) {
-      const codeExists = await this.findByCode(data.code);
-      if (codeExists && codeExists.id !== id) {
-        throw new HTTPException(409, {
-          message: `Department with code '${data.code}' already exists`,
-        });
-      }
-    }
-
     const [department] = await db`
-      UPDATE departments 
-      SET 
-        code = COALESCE(${data.code}, code),
-        name = COALESCE(${data.name}, name),
-        name_en = COALESCE(${data.name_en}, name_en),
-        description = COALESCE(${data.description}, description),
-        is_active = COALESCE(${data.is_active}, is_active),
-        updated_at = CURRENT_TIMESTAMP
-      WHERE id = ${id}
-      RETURNING id, code, name, name_en, description
+      SELECT * FROM update_department_with_validation(
+        ${id},
+        ${data.code},
+        ${data.name},
+        ${data.name_en},
+        ${data.description},
+        ${data.is_active}
+      )
     `;
 
-    return department;
+    return this.parseOne(department);
   }
 
-  /**
-   * Soft delete department by ID
-   */
   async delete(id: string): Promise<void> {
-    // Check if department exists
-    const existing = await this.findById(id);
-    if (!existing) {
-      throw new HTTPException(404, {
-        message: "Department not found",
-      });
-    }
-
     await db`
-      UPDATE departments 
-      SET is_active = false, updated_at = CURRENT_TIMESTAMP
-      WHERE id = ${id}
+      SELECT delete_department_with_validation(${id})
     `;
   }
 }

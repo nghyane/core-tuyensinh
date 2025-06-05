@@ -3,6 +3,7 @@ import authRoutes from "@routes/auth/auth";
 import departmentsRoutes from "@routes/departments";
 import docsRoutes from "@routes/docs";
 import healthRoutes from "@routes/health";
+import programsRoutes from "@routes/programs";
 
 /**
  * Aggregate all API routes
@@ -19,6 +20,9 @@ export function setupRoutes(app: OpenAPIHono) {
 
   // Departments routes
   app.route("/", departmentsRoutes);
+
+  // Programs routes
+  app.route("/", programsRoutes);
 
   return app;
 }

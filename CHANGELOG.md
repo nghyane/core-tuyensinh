@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2025-01-27
+
+### Added
+- **📚 Programs API**: Complete CRUD operations for academic programs
+  - GET /api/v1/programs (public) - List all programs with department info
+  - GET /api/v1/programs/:id (public) - Get specific program details
+  - POST /api/v1/programs (admin) - Create new programs
+  - PUT /api/v1/programs/:id (admin) - Update existing programs
+  - DELETE /api/v1/programs/:id (admin) - Soft delete programs
+  - Department filtering via ?department_code query parameter
+  - Full department information included in responses via JOIN queries
+  - Validation for program codes, duration (1-6 years), and department existence
+  - Admin-only access for create/update/delete operations
+
 ## [1.1.0] - 2025-01-27
 
 ### Added
@@ -14,6 +28,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Role-based access control (student, admin, staff, super_admin)
   - Token refresh mechanism
   - Protected routes with auth middleware
+- **🏢 Departments API**: Complete CRUD operations for university departments
+  - GET /api/v1/departments (public) - List all departments
+  - GET /api/v1/departments/:id (public) - Get specific department
+  - POST /api/v1/departments (admin) - Create new departments
+  - PUT /api/v1/departments/:id (admin) - Update existing departments
+  - DELETE /api/v1/departments/:id (admin) - Soft delete departments
 - **🗄️ Database Architecture**: Complete FPT University schema (15 tables)
   - Users, departments, programs, campuses, applications
   - Progressive tuition, scholarships, admission methods
@@ -21,7 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Document uploads and analytics tracking
 - **🛠️ Development Workflow**: Structured 11-session development plan
   - Phase 0: Authentication (✅ Complete)
-  - Phase 1: Core APIs (departments, programs, campuses, tuition)
+  - Phase 1: Core APIs (departments ✅, programs ✅, campuses, tuition)
   - Phase 2: Applications (scholarships, applications, documents)
   - Phase 3: AI Integration (search, processing, analytics)
 - **🔧 Enhanced Configuration**:

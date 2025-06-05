@@ -31,6 +31,7 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 # Finder (MacOS) folder config
 .DS_Store
+**/.DS_Store
 
 # Bun specific
 bun.lockb
@@ -43,6 +44,10 @@ bun.lockb
 # Test and demo files
 test-*.ts
 demo-*.ts
+
+# Database migration test files
+**/migrations/*test*.sql
+**/migrations/*demo*.sql
 
 # Editor files
 .vscode/
