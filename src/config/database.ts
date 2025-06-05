@@ -9,6 +9,8 @@ export const db = new SQL({
   url: env.DATABASE_URL,
   onconnect: () => logger.debug("Database connected"),
   onclose: () => logger.debug("Database disconnected"),
+  max: 20,
+  idleTimeout: 30000,
 });
 
 /**
