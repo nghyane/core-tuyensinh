@@ -1,5 +1,6 @@
 import type { OpenAPIHono } from "@hono/zod-openapi";
 import authRoutes from "@routes/auth/auth";
+import departmentsRoutes from "@routes/departments";
 import docsRoutes from "@routes/docs";
 import healthRoutes from "@routes/health";
 
@@ -15,6 +16,9 @@ export function setupRoutes(app: OpenAPIHono) {
 
   // Authentication routes
   app.route("/", authRoutes);
+
+  // Departments routes
+  app.route("/", departmentsRoutes);
 
   // Add more route modules here as your API grows
   // Example: app.route('/api/users', userRoutes);
