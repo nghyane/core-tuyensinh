@@ -170,3 +170,54 @@ CREATE TABLE application_documents (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- ✅ CHATBOT SYSTEM TABLES
+
+-- Chatbot conversations for session management
+CREATE TABLE chatbot_conversations (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v8(),
+    session_id VARCHAR(100) UNIQUE NOT NULL,
+    user_ip VARCHAR(45),
+    user_agent TEXT,
+    started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ended_at TIMESTAMP,
+    total_messages INTEGER DEFAULT 0,
+    satisfaction_rating INTEGER CHECK (satisfaction_rating BETWEEN 1 AND 5),
+    created_application_id UUID REFERENCES applications(id),
+    conversation_summary TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Chat messages for conversation history
+CREATE TABLE chat_messages (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v8(),
+    conversation_id UUID NOT NULL REFERENCES chatbot_conversations(id) ON DELETE CASCADE,
+    message_type VARCHAR(20) NOT NULL CHECK (message_type IN ('user', 'assistant', 'system')),
+    content TEXT NOT NULL,
+    metadata JSONB, -- Intent, confidence, context, RAG sources
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- User intents for AI analysis
+CREATE TABLE user_intents (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v8(),
+    conversation_id UUID NOT NULL REFERENCES chatbot_conversations(id),
+    message_id UUID NOT NULL REFERENCES chat_messages(id),
+    intent_name VARCHAR(100) NOT NULL, -- program_inquiry, fee_question, application_help, campus_info
+    confidence_score DECIMAL(3,2), -- 0.00 to 1.00
+    entities JSONB, -- Extracted entities (program_code, campus_name, etc.)
+    resolved BOOLEAN DEFAULT false,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Chatbot analytics for business insights
+CREATE TABLE chatbot_analytics (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v8(),
+    metric_date DATE NOT NULL,
+    metric_type VARCHAR(50) NOT NULL, -- daily_conversations, popular_intents, conversion_rate
+    metric_value DECIMAL(15,2) NOT NULL,
+    metadata JSONB, -- Breakdown data, additional context
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(metric_date, metric_type)
+);

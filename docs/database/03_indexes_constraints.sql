@@ -40,6 +40,29 @@ CREATE INDEX idx_users_role ON users(role);
 CREATE INDEX idx_application_documents_application_id ON application_documents(application_id);
 CREATE INDEX idx_application_documents_type ON application_documents(document_type);
 
+-- ✅ CHATBOT SYSTEM INDEXES
+CREATE INDEX idx_chatbot_conversations_session_id ON chatbot_conversations(session_id);
+CREATE INDEX idx_chatbot_conversations_started_at ON chatbot_conversations(started_at);
+CREATE INDEX idx_chatbot_conversations_application_id ON chatbot_conversations(created_application_id);
+CREATE INDEX idx_chatbot_conversations_ended_at ON chatbot_conversations(ended_at);
+
+CREATE INDEX idx_chat_messages_conversation_id ON chat_messages(conversation_id);
+CREATE INDEX idx_chat_messages_timestamp ON chat_messages(timestamp);
+CREATE INDEX idx_chat_messages_type ON chat_messages(message_type);
+CREATE INDEX idx_chat_messages_metadata ON chat_messages USING gin(metadata);
+
+CREATE INDEX idx_user_intents_conversation_id ON user_intents(conversation_id);
+CREATE INDEX idx_user_intents_message_id ON user_intents(message_id);
+CREATE INDEX idx_user_intents_intent_name ON user_intents(intent_name);
+CREATE INDEX idx_user_intents_confidence ON user_intents(confidence_score);
+CREATE INDEX idx_user_intents_resolved ON user_intents(resolved);
+CREATE INDEX idx_user_intents_entities ON user_intents USING gin(entities);
+
+CREATE INDEX idx_chatbot_analytics_date ON chatbot_analytics(metric_date);
+CREATE INDEX idx_chatbot_analytics_type ON chatbot_analytics(metric_type);
+CREATE INDEX idx_chatbot_analytics_date_type ON chatbot_analytics(metric_date, metric_type);
+CREATE INDEX idx_chatbot_analytics_metadata ON chatbot_analytics USING gin(metadata);
+
 -- ✅ DATA INTEGRITY CONSTRAINTS (Critical for Data Protection)
 
 -- Progressive tuition constraints
@@ -74,3 +97,23 @@ ALTER TABLE progressive_tuition ADD CONSTRAINT chk_year_valid
 
 ALTER TABLE admission_methods ADD CONSTRAINT chk_year_valid_admission
     CHECK (year >= 2020 AND year <= 2035);
+
+-- ✅ CHATBOT SYSTEM CONSTRAINTS
+
+-- Chatbot conversations constraints
+ALTER TABLE chatbot_conversations ADD CONSTRAINT chk_satisfaction_rating_valid
+    CHECK (satisfaction_rating IS NULL OR (satisfaction_rating >= 1 AND satisfaction_rating <= 5));
+
+ALTER TABLE chatbot_conversations ADD CONSTRAINT chk_total_messages_positive
+    CHECK (total_messages >= 0);
+
+ALTER TABLE chatbot_conversations ADD CONSTRAINT chk_conversation_duration
+    CHECK (ended_at IS NULL OR ended_at >= started_at);
+
+-- User intents constraints
+ALTER TABLE user_intents ADD CONSTRAINT chk_confidence_score_valid
+    CHECK (confidence_score IS NULL OR (confidence_score >= 0.00 AND confidence_score <= 1.00));
+
+-- Chatbot analytics constraints
+ALTER TABLE chatbot_analytics ADD CONSTRAINT chk_metric_value_valid
+    CHECK (metric_value >= 0);
