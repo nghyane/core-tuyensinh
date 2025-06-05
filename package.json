@@ -1,7 +1,7 @@
 {
-  "name": "chatbot-api",
+  "name": "fpt-admission-api",
   "version": "1.0.0",
-  "description": "AI Chatbot Backend API with Bun + Hono + PostgreSQL + TypeScript",
+  "description": "FPT University 2025 Admission System Backend API with Bun + Hono + PostgreSQL + TypeScript",
   "module": "index.ts",
   "type": "module",
   "private": true,

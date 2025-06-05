@@ -1,22 +1,43 @@
-# 🤖 AI Chatbot Backend API
+# 🎓 FPT University 2025 Admission System
 
-Backend API service for AI Chatbot application built with **Bun**, **Hono**, **PostgreSQL**, and **TypeScript**.
+Core Backend API for FPT University 2025 Admission System with integrated AI chatbot built with **Bun**, **Hono**, **PostgreSQL**, and **TypeScript**.
 
 ## ✨ Features
 
-- 🤖 **AI Service Integration** - API client for external AI services
-- 💬 **Conversation Management** - Chat session and message handling
-- 👤 **User Sessions** - Session tracking with UUIDs
-- 📝 **Message History** - Persistent conversation storage
-- 🔄 **API Gateway** - Proxy and manage AI service requests
+### 🔐 Authentication & Authorization
+- **JWT Authentication** - Secure token-based authentication
+- **Role-based Access Control** - Student, Admin, Staff, Super Admin roles
+- **Password Security** - Bcrypt hashing with strength validation
+- **Session Management** - HTTP-only cookies + Bearer tokens
+
+### 🏫 University Management
+- **Departments** - Academic department management
+- **Programs** - Study program catalog with relationships
+- **Campuses** - Multi-campus support with foundation fees
+- **Tuition** - Progressive tuition fee management
+- **Scholarships** - Scholarship program management
+
+### 📋 Application System
+- **Applications** - Student application processing
+- **Document Upload** - File handling for application documents
+- **Multi-source Support** - Chatbot, website, manual applications
+- **Status Tracking** - Application lifecycle management
+
+### 🤖 AI Integration
+- **Chatbot Conversations** - AI-powered admission assistance
+- **Smart Search** - AI-enhanced information retrieval
+- **Application Processing** - AI-assisted application review
+- **Analytics** - Dashboard statistics and insights
+
+### 🛠️ Technical Features
 - 🏃‍♂️ **Bun Runtime** - Ultra-fast JavaScript runtime
 - 🔥 **Hono Framework** - Lightweight, fast web framework
-- 🗄️ **PostgreSQL** - Robust database with postgres.js
+- 🗄️ **PostgreSQL** - Robust database with Bun SQL
 - 📝 **TypeScript** - Full type safety
-- 📚 **OpenAPI/Swagger** - Auto-generated API documentation
+- 📚 **OpenAPI 3.0** - Auto-generated API documentation with Scalar UI
 - 🧪 **Testing** - Bun test runner setup
 - 🔍 **Logging** - Pino logger with request tracing
-- 🛡️ **Security** - Rate limiting and security headers
+- 🛡️ **Security** - Rate limiting, CORS, security headers
 - 🔧 **Development** - Hot reload, linting, formatting
 - 🐳 **Docker** - Ready for containerization
 
@@ -76,10 +97,10 @@ cd docker/prod && ./deploy.sh
 
 - **Runtime**: [Bun](https://bun.sh/) - Ultra-fast JavaScript runtime
 - **Framework**: [Hono](https://hono.dev/) - Lightweight web framework
-- **Database**: [PostgreSQL 17](https://www.postgresql.org/) + [postgres.js](https://github.com/porsager/postgres)
+- **Database**: [PostgreSQL 17](https://www.postgresql.org/) + [Bun SQL](https://bun.sh/docs/api/sql) (built-in driver)
 - **Validation**: [Zod](https://zod.dev/) - TypeScript-first schema validation
+- **API Docs**: [OpenAPI 3.0](https://swagger.io/specification/) + [Scalar UI](https://scalar.com/)
 - **Logging**: [Pino](https://getpino.io/) - Fast JSON logger
 - **Testing**: Bun test runner
-- **Docs**: OpenAPI 3.0 + [Scalar](https://scalar.com/)
 - **Code Quality**: [Biome](https://biomejs.dev/) - Fast linter & formatter
 - **Git Hooks**: [Husky](https://typicode.github.io/husky/) + lint-staged
