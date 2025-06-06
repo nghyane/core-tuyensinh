@@ -11,8 +11,7 @@ import type { OpenAPIHono } from "@hono/zod-openapi";
  * Get dynamic server configuration based on environment
  */
 function getServerConfig() {
-  const baseUrl =
-    env.NODE_ENV === "production" ? "/" : `http://localhost:${env.PORT}`;
+  const baseUrl = "/";
 
   return [
     {
