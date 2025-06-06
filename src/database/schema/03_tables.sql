@@ -70,6 +70,7 @@ CREATE TABLE scholarships (
     percentage DECIMAL(5,2),
     requirements TEXT,
     year INTEGER NOT NULL,
+    notes TEXT, -- Additional notes about the scholarship
     is_active BOOLEAN DEFAULT true,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -81,23 +82,27 @@ CREATE TABLE admission_methods (
     method_code VARCHAR(10) UNIQUE NOT NULL,
     name VARCHAR(255) NOT NULL,
     requirements TEXT,
+    notes TEXT, -- Additional notes about the admission method
     year INTEGER NOT NULL DEFAULT 2025,
     is_active BOOLEAN DEFAULT true,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Foundation fees table
-CREATE TABLE foundation_fees (
+-- Preparation fees table
+CREATE TABLE preparation_fees (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v8(),
     campus_id UUID NOT NULL REFERENCES campuses(id),
-    year INTEGER NOT NULL DEFAULT 2025,
-    standard_fee DECIMAL(15,2) NOT NULL, -- Học phí kỳ định hướng gốc
-    discounted_fee DECIMAL(15,2) NOT NULL, -- Học phí sau khi áp dụng discount
+    year INTEGER NOT NULL,
+    fee_type VARCHAR(20) NOT NULL CHECK (fee_type IN ('orientation', 'english_prep')),
+    fee DECIMAL(15,2) NOT NULL CHECK (fee > 0),
+    is_mandatory BOOLEAN DEFAULT true,
+    max_periods INTEGER DEFAULT 1 CHECK (max_periods > 0),
+    description TEXT,
     is_active BOOLEAN DEFAULT true,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(campus_id, year)
+    UNIQUE(campus_id, year, fee_type)
 );
 
 -- Program campus availability table
@@ -218,4 +223,45 @@ CREATE TABLE chatbot_analytics (
     metadata JSONB, -- Breakdown data, additional context
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(metric_date, metric_type)
+);
+
+-- ADMISSION SYSTEM ADDITIONAL TABLES
+
+-- Admission quotas table
+CREATE TABLE admission_quotas (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v8(),
+    program_id UUID NOT NULL REFERENCES programs(id),
+    year INTEGER NOT NULL,
+    total_quota INTEGER NOT NULL CHECK (total_quota > 0),
+    notes TEXT,
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(program_id, year)
+);
+
+-- Admission policies table
+CREATE TABLE admission_policies (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v8(),
+    policy_code VARCHAR(20) UNIQUE NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    year INTEGER NOT NULL,
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Admission timeline table
+CREATE TABLE admission_timeline (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v8(),
+    phase VARCHAR(50) NOT NULL,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    description TEXT,
+    year INTEGER NOT NULL,
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CHECK (end_date >= start_date)
 );

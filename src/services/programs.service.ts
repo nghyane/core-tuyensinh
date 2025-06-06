@@ -109,9 +109,7 @@ export class ProgramsService extends BaseService<
 
   async findByCode(code: string): Promise<Program | null> {
     const [program] = await db`
-      SELECT id, code, name, name_en, department_id, duration_years, is_active, created_at, updated_at
-      FROM programs
-      WHERE code = ${code} AND is_active = true
+      SELECT * FROM get_program_by_code(${code})
     `;
     return program || null;
   }

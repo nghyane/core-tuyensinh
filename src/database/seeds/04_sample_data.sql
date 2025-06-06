@@ -3,30 +3,163 @@
 -- Purpose: Sample tuition data and test records
 -- =====================================================
 
--- Progressive tuition data (sample for key programs)
+-- =====================================================
+-- COMPLETE PROGRESSIVE TUITION DATA FOR ALL PROGRAMS
+-- Based on FPT University 2025 official fee structure
+-- =====================================================
+
+-- HIGH-TIER PROGRAMS (IT, Business, Communications)
+-- Hà Nội Campus - No discount
 INSERT INTO progressive_tuition (program_id, campus_id, year, semester_group_1_3_fee, semester_group_4_6_fee, semester_group_7_9_fee) VALUES
--- Hà Nội Campus - High tier programs
+-- IT Programs
 ((SELECT id FROM programs WHERE code = 'SE'), (SELECT id FROM campuses WHERE code = 'HN'), 2025, 31600000, 33600000, 35800000),
+((SELECT id FROM programs WHERE code = 'IS'), (SELECT id FROM campuses WHERE code = 'HN'), 2025, 31600000, 33600000, 35800000),
 ((SELECT id FROM programs WHERE code = 'AI'), (SELECT id FROM campuses WHERE code = 'HN'), 2025, 31600000, 33600000, 35800000),
+((SELECT id FROM programs WHERE code = 'IA'), (SELECT id FROM campuses WHERE code = 'HN'), 2025, 31600000, 33600000, 35800000),
+((SELECT id FROM programs WHERE code = 'DT'), (SELECT id FROM campuses WHERE code = 'HN'), 2025, 31600000, 33600000, 35800000),
+((SELECT id FROM programs WHERE code = 'MC'), (SELECT id FROM campuses WHERE code = 'HN'), 2025, 31600000, 33600000, 35800000),
+((SELECT id FROM programs WHERE code = 'GD'), (SELECT id FROM campuses WHERE code = 'HN'), 2025, 31600000, 33600000, 35800000),
+-- Business Programs
 ((SELECT id FROM programs WHERE code = 'MKT'), (SELECT id FROM campuses WHERE code = 'HN'), 2025, 31600000, 33600000, 35800000),
 ((SELECT id FROM programs WHERE code = 'IB'), (SELECT id FROM campuses WHERE code = 'HN'), 2025, 31600000, 33600000, 35800000),
+((SELECT id FROM programs WHERE code = 'CF'), (SELECT id FROM campuses WHERE code = 'HN'), 2025, 31600000, 33600000, 35800000),
+((SELECT id FROM programs WHERE code = 'DBF'), (SELECT id FROM campuses WHERE code = 'HN'), 2025, 31600000, 33600000, 35800000),
+((SELECT id FROM programs WHERE code = 'FT'), (SELECT id FROM campuses WHERE code = 'HN'), 2025, 31600000, 33600000, 35800000),
+((SELECT id FROM programs WHERE code = 'IF'), (SELECT id FROM campuses WHERE code = 'HN'), 2025, 31600000, 33600000, 35800000),
+((SELECT id FROM programs WHERE code = 'SCM'), (SELECT id FROM campuses WHERE code = 'HN'), 2025, 31600000, 33600000, 35800000),
+-- Communications Programs
+((SELECT id FROM programs WHERE code = 'MM'), (SELECT id FROM campuses WHERE code = 'HN'), 2025, 31600000, 33600000, 35800000),
+((SELECT id FROM programs WHERE code = 'PR'), (SELECT id FROM campuses WHERE code = 'HN'), 2025, 31600000, 33600000, 35800000);
 
--- HCM Campus - Same as Hà Nội
+-- HCM Campus - Same as Hà Nội (No discount)
+INSERT INTO progressive_tuition (program_id, campus_id, year, semester_group_1_3_fee, semester_group_4_6_fee, semester_group_7_9_fee) VALUES
+-- IT Programs
 ((SELECT id FROM programs WHERE code = 'SE'), (SELECT id FROM campuses WHERE code = 'HCM'), 2025, 31600000, 33600000, 35800000),
+((SELECT id FROM programs WHERE code = 'IS'), (SELECT id FROM campuses WHERE code = 'HCM'), 2025, 31600000, 33600000, 35800000),
 ((SELECT id FROM programs WHERE code = 'AI'), (SELECT id FROM campuses WHERE code = 'HCM'), 2025, 31600000, 33600000, 35800000),
+((SELECT id FROM programs WHERE code = 'IA'), (SELECT id FROM campuses WHERE code = 'HCM'), 2025, 31600000, 33600000, 35800000),
+((SELECT id FROM programs WHERE code = 'DT'), (SELECT id FROM campuses WHERE code = 'HCM'), 2025, 31600000, 33600000, 35800000),
+((SELECT id FROM programs WHERE code = 'MC'), (SELECT id FROM campuses WHERE code = 'HCM'), 2025, 31600000, 33600000, 35800000),
+((SELECT id FROM programs WHERE code = 'GD'), (SELECT id FROM campuses WHERE code = 'HCM'), 2025, 31600000, 33600000, 35800000),
+-- Business Programs
 ((SELECT id FROM programs WHERE code = 'MKT'), (SELECT id FROM campuses WHERE code = 'HCM'), 2025, 31600000, 33600000, 35800000),
 ((SELECT id FROM programs WHERE code = 'IB'), (SELECT id FROM campuses WHERE code = 'HCM'), 2025, 31600000, 33600000, 35800000),
+((SELECT id FROM programs WHERE code = 'CF'), (SELECT id FROM campuses WHERE code = 'HCM'), 2025, 31600000, 33600000, 35800000),
+((SELECT id FROM programs WHERE code = 'DBF'), (SELECT id FROM campuses WHERE code = 'HCM'), 2025, 31600000, 33600000, 35800000),
+((SELECT id FROM programs WHERE code = 'FT'), (SELECT id FROM campuses WHERE code = 'HCM'), 2025, 31600000, 33600000, 35800000),
+((SELECT id FROM programs WHERE code = 'IF'), (SELECT id FROM campuses WHERE code = 'HCM'), 2025, 31600000, 33600000, 35800000),
+((SELECT id FROM programs WHERE code = 'SCM'), (SELECT id FROM campuses WHERE code = 'HCM'), 2025, 31600000, 33600000, 35800000),
+-- Communications Programs
+((SELECT id FROM programs WHERE code = 'MM'), (SELECT id FROM campuses WHERE code = 'HCM'), 2025, 31600000, 33600000, 35800000),
+((SELECT id FROM programs WHERE code = 'PR'), (SELECT id FROM campuses WHERE code = 'HCM'), 2025, 31600000, 33600000, 35800000);
 
--- Đà Nẵng Campus - 30% discount applied
+-- Đà Nẵng Campus - 30% discount applied to high-tier programs
+INSERT INTO progressive_tuition (program_id, campus_id, year, semester_group_1_3_fee, semester_group_4_6_fee, semester_group_7_9_fee) VALUES
+-- IT Programs
 ((SELECT id FROM programs WHERE code = 'SE'), (SELECT id FROM campuses WHERE code = 'DN'), 2025, 22120000, 23520000, 25060000),
+((SELECT id FROM programs WHERE code = 'AI'), (SELECT id FROM campuses WHERE code = 'DN'), 2025, 22120000, 23520000, 25060000),
+((SELECT id FROM programs WHERE code = 'IA'), (SELECT id FROM campuses WHERE code = 'DN'), 2025, 22120000, 23520000, 25060000),
+((SELECT id FROM programs WHERE code = 'DT'), (SELECT id FROM campuses WHERE code = 'DN'), 2025, 22120000, 23520000, 25060000),
+((SELECT id FROM programs WHERE code = 'MC'), (SELECT id FROM campuses WHERE code = 'DN'), 2025, 22120000, 23520000, 25060000),
+((SELECT id FROM programs WHERE code = 'GD'), (SELECT id FROM campuses WHERE code = 'DN'), 2025, 22120000, 23520000, 25060000),
+-- Business Programs (high-tier)
 ((SELECT id FROM programs WHERE code = 'MKT'), (SELECT id FROM campuses WHERE code = 'DN'), 2025, 22120000, 23520000, 25060000),
+((SELECT id FROM programs WHERE code = 'IB'), (SELECT id FROM campuses WHERE code = 'DN'), 2025, 22120000, 23520000, 25060000),
+((SELECT id FROM programs WHERE code = 'CF'), (SELECT id FROM campuses WHERE code = 'DN'), 2025, 22120000, 23520000, 25060000),
+((SELECT id FROM programs WHERE code = 'DBF'), (SELECT id FROM campuses WHERE code = 'DN'), 2025, 22120000, 23520000, 25060000),
+((SELECT id FROM programs WHERE code = 'FT'), (SELECT id FROM campuses WHERE code = 'DN'), 2025, 22120000, 23520000, 25060000),
+((SELECT id FROM programs WHERE code = 'IF'), (SELECT id FROM campuses WHERE code = 'DN'), 2025, 22120000, 23520000, 25060000),
+((SELECT id FROM programs WHERE code = 'SCM'), (SELECT id FROM campuses WHERE code = 'DN'), 2025, 22120000, 23520000, 25060000),
+-- Business Programs (special - Hotel/Tourism with different rates)
+((SELECT id FROM programs WHERE code = 'HM'), (SELECT id FROM campuses WHERE code = 'DN'), 2025, 15480000, 16460000, 17540000),
+((SELECT id FROM programs WHERE code = 'TM'), (SELECT id FROM campuses WHERE code = 'DN'), 2025, 15480000, 16460000, 17540000),
+-- Communications Programs
+((SELECT id FROM programs WHERE code = 'MM'), (SELECT id FROM campuses WHERE code = 'DN'), 2025, 22120000, 23520000, 25060000),
+((SELECT id FROM programs WHERE code = 'PR'), (SELECT id FROM campuses WHERE code = 'DN'), 2025, 22120000, 23520000, 25060000);
 
--- Cần Thơ Campus - 30% discount applied
+-- Cần Thơ Campus - 30% discount applied (same as Đà Nẵng)
+INSERT INTO progressive_tuition (program_id, campus_id, year, semester_group_1_3_fee, semester_group_4_6_fee, semester_group_7_9_fee) VALUES
+-- IT Programs
 ((SELECT id FROM programs WHERE code = 'SE'), (SELECT id FROM campuses WHERE code = 'CT'), 2025, 22120000, 23520000, 25060000),
+((SELECT id FROM programs WHERE code = 'AI'), (SELECT id FROM campuses WHERE code = 'CT'), 2025, 22120000, 23520000, 25060000),
+((SELECT id FROM programs WHERE code = 'IA'), (SELECT id FROM campuses WHERE code = 'CT'), 2025, 22120000, 23520000, 25060000),
+((SELECT id FROM programs WHERE code = 'DT'), (SELECT id FROM campuses WHERE code = 'CT'), 2025, 22120000, 23520000, 25060000),
+((SELECT id FROM programs WHERE code = 'MC'), (SELECT id FROM campuses WHERE code = 'CT'), 2025, 22120000, 23520000, 25060000),
+((SELECT id FROM programs WHERE code = 'GD'), (SELECT id FROM campuses WHERE code = 'CT'), 2025, 22120000, 23520000, 25060000),
+-- Business Programs (high-tier)
 ((SELECT id FROM programs WHERE code = 'MKT'), (SELECT id FROM campuses WHERE code = 'CT'), 2025, 22120000, 23520000, 25060000),
+((SELECT id FROM programs WHERE code = 'IB'), (SELECT id FROM campuses WHERE code = 'CT'), 2025, 22120000, 23520000, 25060000),
+((SELECT id FROM programs WHERE code = 'CF'), (SELECT id FROM campuses WHERE code = 'CT'), 2025, 22120000, 23520000, 25060000),
+((SELECT id FROM programs WHERE code = 'DBF'), (SELECT id FROM campuses WHERE code = 'CT'), 2025, 22120000, 23520000, 25060000),
+((SELECT id FROM programs WHERE code = 'FT'), (SELECT id FROM campuses WHERE code = 'CT'), 2025, 22120000, 23520000, 25060000),
+((SELECT id FROM programs WHERE code = 'IF'), (SELECT id FROM campuses WHERE code = 'CT'), 2025, 22120000, 23520000, 25060000),
+((SELECT id FROM programs WHERE code = 'SCM'), (SELECT id FROM campuses WHERE code = 'CT'), 2025, 22120000, 23520000, 25060000),
+-- Business Programs (special - Hotel/Tourism)
+((SELECT id FROM programs WHERE code = 'HM'), (SELECT id FROM campuses WHERE code = 'CT'), 2025, 15480000, 16460000, 17540000),
+((SELECT id FROM programs WHERE code = 'TM'), (SELECT id FROM campuses WHERE code = 'CT'), 2025, 15480000, 16460000, 17540000),
+-- Communications Programs
+((SELECT id FROM programs WHERE code = 'MM'), (SELECT id FROM campuses WHERE code = 'CT'), 2025, 22120000, 23520000, 25060000),
+((SELECT id FROM programs WHERE code = 'PR'), (SELECT id FROM campuses WHERE code = 'CT'), 2025, 22120000, 23520000, 25060000);
 
--- Quy Nhơn Campus - 50% discount applied
-((SELECT id FROM programs WHERE code = 'SE'), (SELECT id FROM campuses WHERE code = 'QN'), 2025, 15800000, 16800000, 17900000);
+-- Quy Nhơn Campus - 50% discount applied (limited programs)
+INSERT INTO progressive_tuition (program_id, campus_id, year, semester_group_1_3_fee, semester_group_4_6_fee, semester_group_7_9_fee) VALUES
+-- IT Programs
+((SELECT id FROM programs WHERE code = 'SE'), (SELECT id FROM campuses WHERE code = 'QN'), 2025, 15800000, 16800000, 17900000),
+((SELECT id FROM programs WHERE code = 'AI'), (SELECT id FROM campuses WHERE code = 'QN'), 2025, 15800000, 16800000, 17900000),
+((SELECT id FROM programs WHERE code = 'IA'), (SELECT id FROM campuses WHERE code = 'QN'), 2025, 15800000, 16800000, 17900000),
+((SELECT id FROM programs WHERE code = 'DT'), (SELECT id FROM campuses WHERE code = 'QN'), 2025, 15800000, 16800000, 17900000),
+((SELECT id FROM programs WHERE code = 'MC'), (SELECT id FROM campuses WHERE code = 'QN'), 2025, 15800000, 16800000, 17900000),
+((SELECT id FROM programs WHERE code = 'GD'), (SELECT id FROM campuses WHERE code = 'QN'), 2025, 15800000, 16800000, 17900000),
+-- Business Programs (limited selection)
+((SELECT id FROM programs WHERE code = 'MKT'), (SELECT id FROM campuses WHERE code = 'QN'), 2025, 15800000, 16800000, 17900000),
+((SELECT id FROM programs WHERE code = 'IB'), (SELECT id FROM campuses WHERE code = 'QN'), 2025, 15800000, 16800000, 17900000),
+((SELECT id FROM programs WHERE code = 'FT'), (SELECT id FROM campuses WHERE code = 'QN'), 2025, 15800000, 16800000, 17900000),
+((SELECT id FROM programs WHERE code = 'SCM'), (SELECT id FROM campuses WHERE code = 'QN'), 2025, 15800000, 16800000, 17900000),
+-- Communications Programs
+((SELECT id FROM programs WHERE code = 'MM'), (SELECT id FROM campuses WHERE code = 'QN'), 2025, 15800000, 16800000, 17900000),
+((SELECT id FROM programs WHERE code = 'PR'), (SELECT id FROM campuses WHERE code = 'QN'), 2025, 15800000, 16800000, 17900000);
+
+-- LAW AND LANGUAGE PROGRAMS (Lower fee tier)
+-- Hà Nội Campus - Law and Language programs
+INSERT INTO progressive_tuition (program_id, campus_id, year, semester_group_1_3_fee, semester_group_4_6_fee, semester_group_7_9_fee) VALUES
+((SELECT id FROM programs WHERE code = 'BL'), (SELECT id FROM campuses WHERE code = 'HN'), 2025, 22120000, 23520000, 25060000),
+((SELECT id FROM programs WHERE code = 'IL'), (SELECT id FROM campuses WHERE code = 'HN'), 2025, 22120000, 23520000, 25060000),
+((SELECT id FROM programs WHERE code = 'EN'), (SELECT id FROM campuses WHERE code = 'HN'), 2025, 22120000, 23520000, 25060000),
+((SELECT id FROM programs WHERE code = 'CN'), (SELECT id FROM campuses WHERE code = 'HN'), 2025, 22120000, 23520000, 25060000),
+((SELECT id FROM programs WHERE code = 'JP'), (SELECT id FROM campuses WHERE code = 'HN'), 2025, 22120000, 23520000, 25060000),
+((SELECT id FROM programs WHERE code = 'KR'), (SELECT id FROM campuses WHERE code = 'HN'), 2025, 22120000, 23520000, 25060000);
+
+-- HCM Campus - Law and Language programs
+INSERT INTO progressive_tuition (program_id, campus_id, year, semester_group_1_3_fee, semester_group_4_6_fee, semester_group_7_9_fee) VALUES
+((SELECT id FROM programs WHERE code = 'BL'), (SELECT id FROM campuses WHERE code = 'HCM'), 2025, 22120000, 23520000, 25060000),
+((SELECT id FROM programs WHERE code = 'IL'), (SELECT id FROM campuses WHERE code = 'HCM'), 2025, 22120000, 23520000, 25060000),
+((SELECT id FROM programs WHERE code = 'EN'), (SELECT id FROM campuses WHERE code = 'HCM'), 2025, 22120000, 23520000, 25060000),
+((SELECT id FROM programs WHERE code = 'CN'), (SELECT id FROM campuses WHERE code = 'HCM'), 2025, 22120000, 23520000, 25060000),
+((SELECT id FROM programs WHERE code = 'JP'), (SELECT id FROM campuses WHERE code = 'HCM'), 2025, 22120000, 23520000, 25060000),
+((SELECT id FROM programs WHERE code = 'KR'), (SELECT id FROM campuses WHERE code = 'HCM'), 2025, 22120000, 23520000, 25060000);
+
+-- Đà Nẵng Campus - Law and Language programs (30% discount)
+INSERT INTO progressive_tuition (program_id, campus_id, year, semester_group_1_3_fee, semester_group_4_6_fee, semester_group_7_9_fee) VALUES
+((SELECT id FROM programs WHERE code = 'BL'), (SELECT id FROM campuses WHERE code = 'DN'), 2025, 15480000, 16460000, 17540000),
+((SELECT id FROM programs WHERE code = 'IL'), (SELECT id FROM campuses WHERE code = 'DN'), 2025, 15480000, 16460000, 17540000),
+((SELECT id FROM programs WHERE code = 'EN'), (SELECT id FROM campuses WHERE code = 'DN'), 2025, 15480000, 16460000, 17540000),
+((SELECT id FROM programs WHERE code = 'CN'), (SELECT id FROM campuses WHERE code = 'DN'), 2025, 15480000, 16460000, 17540000),
+((SELECT id FROM programs WHERE code = 'JP'), (SELECT id FROM campuses WHERE code = 'DN'), 2025, 15480000, 16460000, 17540000),
+((SELECT id FROM programs WHERE code = 'KR'), (SELECT id FROM campuses WHERE code = 'DN'), 2025, 15480000, 16460000, 17540000);
+
+-- Cần Thơ Campus - Law and Language programs (30% discount)
+INSERT INTO progressive_tuition (program_id, campus_id, year, semester_group_1_3_fee, semester_group_4_6_fee, semester_group_7_9_fee) VALUES
+((SELECT id FROM programs WHERE code = 'BL'), (SELECT id FROM campuses WHERE code = 'CT'), 2025, 15480000, 16460000, 17540000),
+((SELECT id FROM programs WHERE code = 'IL'), (SELECT id FROM campuses WHERE code = 'CT'), 2025, 15480000, 16460000, 17540000),
+((SELECT id FROM programs WHERE code = 'EN'), (SELECT id FROM campuses WHERE code = 'CT'), 2025, 15480000, 16460000, 17540000),
+((SELECT id FROM programs WHERE code = 'CN'), (SELECT id FROM campuses WHERE code = 'CT'), 2025, 15480000, 16460000, 17540000),
+((SELECT id FROM programs WHERE code = 'JP'), (SELECT id FROM campuses WHERE code = 'CT'), 2025, 15480000, 16460000, 17540000),
+((SELECT id FROM programs WHERE code = 'KR'), (SELECT id FROM campuses WHERE code = 'CT'), 2025, 15480000, 16460000, 17540000);
+
+-- Quy Nhơn Campus - Limited Law and Language programs (50% discount)
+INSERT INTO progressive_tuition (program_id, campus_id, year, semester_group_1_3_fee, semester_group_4_6_fee, semester_group_7_9_fee) VALUES
+((SELECT id FROM programs WHERE code = 'BL'), (SELECT id FROM campuses WHERE code = 'QN'), 2025, 11060000, 11760000, 12530000),
+((SELECT id FROM programs WHERE code = 'EN'), (SELECT id FROM campuses WHERE code = 'QN'), 2025, 11060000, 11760000, 12530000);
 
 -- Sample chatbot conversations for testing
 INSERT INTO chatbot_conversations (session_id, user_ip, started_at, ended_at, total_messages, satisfaction_rating, conversation_summary) VALUES

@@ -81,9 +81,7 @@ export class DepartmentsService extends BaseService<
 
   async findByCode(code: string): Promise<Department | undefined> {
     const [department] = await db`
-      SELECT id, code, name, name_en, description, is_active, created_at, updated_at
-      FROM departments
-      WHERE code = ${code} AND is_active = true
+      SELECT * FROM get_department_by_code(${code})
     `;
     return department;
   }

@@ -1,8 +1,8 @@
 # 🤖 Agent Development Guide
 
-## 📊 Status: 3/11 Complete → Next: s03_campuses_api
+## 📊 Status: 4/11 Complete → Next: s04_tuition_api
 
-**✅ Done**: Auth, Departments, Programs | **🔄 Next**: Campuses | **📋 Remaining**: Tuition, Scholarships, Applications, Documents, AI Search, AI Application, Analytics
+**✅ Done**: Auth, Departments, Programs, Campuses | **🔄 Next**: Tuition | **📋 Remaining**: Scholarships, Applications, Documents, AI Search, AI Application, Analytics
 
 ---
 
@@ -34,19 +34,25 @@ const route = createRoute({
 
 ---
 
-## 🎯 s03: Campuses API ← **IMPLEMENT NOW**
+## ✅ s03: Campuses API ← **COMPLETED**
 
-**Database Ready**: `campuses` table, `foundation_fees` table, `v_campuses_with_programs` view
-**Endpoints**: GET /api/v1/campuses (public + foundation fees), POST/PUT/DELETE (admin)
-**Key Logic**: Foundation fee calculations, campus discount logic, program availability
+**Database Ready**: `campuses` table, `preparation_fees` table, `v_campuses_summary` view + SQL functions
+**Endpoints**: GET /api/v1/campuses (public + preparation fees), POST/PUT/DELETE (admin) ✅
+**Key Logic**: Preparation fee calculations (orientation + English prep), campus discount logic, program availability ✅
 
 **Campus Schema (from DB)**:
 ```sql
 campuses: id, code, name, city, address, phone, email, discount_percentage, is_active
-foundation_fees: campus_id, year, standard_fee, discounted_fee
+preparation_fees: campus_id, year, fee_type, fee, is_mandatory, max_periods, description
 ```
 
 **Sample Data Available**: HN(0%), HCM(0%), DN(30%), CT(30%), QN(50%) discount
+
+## 🎯 s04: Tuition API ← **IMPLEMENT NEXT**
+
+**Database Ready**: `progressive_tuition` table with semester-based fee structure
+**Endpoints**: GET /api/v1/tuition (public), POST/PUT/DELETE (admin)
+**Key Logic**: Multi-table JOINs, progressive fees by semester groups, campus-program combinations
 
 ---
 

@@ -3,25 +3,7 @@
 -- Purpose: Views for department-related queries
 -- =====================================================
 
--- Departments with program statistics
-CREATE OR REPLACE VIEW v_departments_with_stats AS
-SELECT
-    d.id,
-    d.code,
-    d.name,
-    d.name_en,
-    d.is_active,
-    d.created_at,
-    d.updated_at,
-    COUNT(p.id) as program_count,
-    AVG(p.duration_years) as avg_program_duration,
-    COUNT(p.id) FILTER (WHERE p.duration_years = 4) as four_year_programs,
-    COUNT(p.id) FILTER (WHERE p.duration_years = 3) as three_year_programs
-FROM departments d
-LEFT JOIN programs p ON d.id = p.department_id AND p.is_active = true
-WHERE d.is_active = true
-GROUP BY d.id, d.code, d.name, d.name_en, d.is_active, d.created_at, d.updated_at
-ORDER BY d.name;
+-- Note: v_departments_with_stats removed - unused complex statistics view
 
 -- Departments summary view
 CREATE OR REPLACE VIEW v_departments_summary AS
@@ -33,52 +15,9 @@ SELECT
 FROM departments d
 WHERE d.is_active = true;
 
--- Active departments with recent activity
-CREATE OR REPLACE VIEW v_active_departments AS
-SELECT
-    d.id,
-    d.code,
-    d.name,
-    d.name_en,
-    d.created_at,
-    COUNT(p.id) as program_count,
-    MAX(p.created_at) as latest_program_created,
-    MAX(p.updated_at) as latest_program_updated
-FROM departments d
-LEFT JOIN programs p ON d.id = p.department_id AND p.is_active = true
-WHERE d.is_active = true
-GROUP BY d.id, d.code, d.name, d.name_en, d.created_at
-HAVING COUNT(p.id) > 0 OR d.created_at >= CURRENT_DATE - INTERVAL '90 days'
-ORDER BY COALESCE(MAX(p.updated_at), d.updated_at) DESC;
+-- Note: v_active_departments removed - unused complex activity tracking view
 
--- Department functions
-CREATE OR REPLACE FUNCTION get_departments_with_stats(
-    limit_results INTEGER DEFAULT 100,
-    offset_results INTEGER DEFAULT 0
-) RETURNS TABLE (
-    id UUID,
-    code VARCHAR(10),
-    name VARCHAR(100),
-    name_en VARCHAR(100),
-    is_active BOOLEAN,
-    created_at TIMESTAMP,
-    updated_at TIMESTAMP,
-    program_count BIGINT
-) AS $$
-BEGIN
-    RETURN QUERY
-    SELECT
-        d.id, d.code, d.name, d.name_en, d.is_active, d.created_at, d.updated_at,
-        COUNT(p.id) as program_count
-    FROM departments d
-    LEFT JOIN programs p ON d.id = p.department_id AND p.is_active = true
-    WHERE d.is_active = true
-    GROUP BY d.id, d.code, d.name, d.name_en, d.is_active, d.created_at, d.updated_at
-    ORDER BY d.name
-    LIMIT limit_results
-    OFFSET offset_results;
-END;
-$$ LANGUAGE plpgsql;
+-- Note: get_departments_with_stats() removed - unused function
 
 -- Get departments with pagination (optimized for API)
 CREATE OR REPLACE FUNCTION get_departments_with_pagination(
@@ -104,16 +43,17 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Get total count of active departments
+-- Optimized SQL function for simple, stable count operation
 CREATE OR REPLACE FUNCTION get_departments_count()
-RETURNS BIGINT AS $$
-BEGIN
-    RETURN (
-        SELECT COUNT(*)
-        FROM departments
-        WHERE is_active = true
-    );
-END;
-$$ LANGUAGE plpgsql;
+RETURNS BIGINT
+LANGUAGE SQL
+STABLE
+PARALLEL SAFE
+AS $$
+    SELECT COUNT(*)::BIGINT
+    FROM departments
+    WHERE is_active = true;
+$$;
 
 -- Get department by ID
 CREATE OR REPLACE FUNCTION get_department_by_id(department_id UUID)
@@ -130,6 +70,27 @@ BEGIN
         d.id, d.code, d.name, d.name_en, d.description
     FROM departments d
     WHERE d.id = department_id AND d.is_active = true;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Get department by code
+CREATE OR REPLACE FUNCTION get_department_by_code(department_code VARCHAR(10))
+RETURNS TABLE (
+    id UUID,
+    code VARCHAR(10),
+    name VARCHAR(100),
+    name_en VARCHAR(100),
+    description TEXT,
+    is_active BOOLEAN,
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT
+        d.id, d.code, d.name, d.name_en, d.description, d.is_active, d.created_at, d.updated_at
+    FROM departments d
+    WHERE d.code = department_code AND d.is_active = true;
 END;
 $$ LANGUAGE plpgsql;
 

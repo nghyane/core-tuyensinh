@@ -6,7 +6,7 @@ PROJECT_NAME := personal-api-starter
 DOCKER_COMPOSE_DEV := docker/dev/docker-compose.yml
 BUILD_DIR := dist
 
-.PHONY: help install dev test build clean services-up services-down services-status db-reset setup start fix direnv-setup db-init db-seed db-setup db-reset
+.PHONY: help install dev test build clean services-up services-down services-status db-reset setup start fix direnv-setup db-init db-seed db-setup db-reset db-rebuild
 
 help: ## Show available commands
 	echo 'Usage: make [target]'
@@ -154,6 +154,18 @@ db-reset: ## Reset database (drop all tables)
 			echo "❌ DATABASE_URL not set in .env file"; exit 1; \
 		fi; \
 		./scripts/db-reset.sh; \
+	else \
+		echo "❌ .env file not found. Run 'make setup' first."; exit 1; \
+	fi
+
+db-rebuild: ## Complete database rebuild (reset + init + seed)
+	@if [ -f .env ]; then \
+		set -a && source .env && set +a; \
+		if [ -z "$$DATABASE_URL" ]; then \
+			echo "❌ DATABASE_URL not set in .env file"; exit 1; \
+		fi; \
+		chmod +x ./scripts/db-rebuild.sh; \
+		./scripts/db-rebuild.sh; \
 	else \
 		echo "❌ .env file not found. Run 'make setup' first."; exit 1; \
 	fi

@@ -8,7 +8,7 @@ CREATE INDEX idx_progressive_tuition_program_id ON progressive_tuition(program_i
 CREATE INDEX idx_progressive_tuition_campus_id ON progressive_tuition(campus_id);
 CREATE INDEX idx_program_campus_program_id ON program_campus_availability(program_id);
 CREATE INDEX idx_program_campus_campus_id ON program_campus_availability(campus_id);
-CREATE INDEX idx_foundation_fees_campus_id ON foundation_fees(campus_id);
+
 CREATE INDEX idx_programs_department_id ON programs(department_id);
 
 -- QUERY PERFORMANCE INDEXES
@@ -81,12 +81,20 @@ ALTER TABLE progressive_tuition ADD CONSTRAINT chk_semester_fee_progression
 ALTER TABLE campuses ADD CONSTRAINT chk_discount_valid
     CHECK (discount_percentage >= 0 AND discount_percentage <= 100);
 
--- Foundation fees constraints
-ALTER TABLE foundation_fees ADD CONSTRAINT chk_foundation_fees_positive
-    CHECK (standard_fee > 0 AND discounted_fee > 0);
+-- Preparation fees constraints
+ALTER TABLE preparation_fees ADD CONSTRAINT chk_preparation_fees_positive
+    CHECK (fee > 0);
 
-ALTER TABLE foundation_fees ADD CONSTRAINT chk_foundation_discount_logic
-    CHECK (discounted_fee <= standard_fee);
+ALTER TABLE preparation_fees ADD CONSTRAINT chk_preparation_max_periods_valid
+    CHECK (max_periods > 0 AND max_periods <= 10);
+
+ALTER TABLE preparation_fees ADD CONSTRAINT chk_preparation_year_valid
+    CHECK (year >= 2020 AND year <= 2035);
+
+-- Preparation fees indexes
+CREATE INDEX idx_preparation_fees_campus_year ON preparation_fees(campus_id, year) WHERE is_active = true;
+CREATE INDEX idx_preparation_fees_type ON preparation_fees(fee_type) WHERE is_active = true;
+CREATE INDEX idx_preparation_fees_year ON preparation_fees(year) WHERE is_active = true;
 
 -- Scholarship constraints
 ALTER TABLE scholarships ADD CONSTRAINT chk_percentage_valid
@@ -122,3 +130,35 @@ ALTER TABLE user_intents ADD CONSTRAINT chk_confidence_score_valid
 -- Chatbot analytics constraints
 ALTER TABLE chatbot_analytics ADD CONSTRAINT chk_metric_value_valid
     CHECK (metric_value >= 0);
+
+-- ADMISSION SYSTEM CONSTRAINTS
+
+-- Admission quotas constraints
+ALTER TABLE admission_quotas ADD CONSTRAINT chk_year_valid_quotas
+    CHECK (year >= 2020 AND year <= 2035);
+
+ALTER TABLE admission_quotas ADD CONSTRAINT chk_quota_positive
+    CHECK (total_quota > 0);
+
+-- Admission policies constraints
+ALTER TABLE admission_policies ADD CONSTRAINT chk_year_valid_policies
+    CHECK (year >= 2020 AND year <= 2035);
+
+-- Admission timeline constraints
+ALTER TABLE admission_timeline ADD CONSTRAINT chk_year_valid_timeline
+    CHECK (year >= 2020 AND year <= 2035);
+
+-- ADMISSION SYSTEM INDEXES
+
+-- Admission quotas indexes
+CREATE INDEX idx_admission_quotas_program_year ON admission_quotas(program_id, year);
+CREATE INDEX idx_admission_quotas_year ON admission_quotas(year) WHERE is_active = true;
+CREATE INDEX idx_admission_quotas_program ON admission_quotas(program_id) WHERE is_active = true;
+
+-- Admission policies indexes
+CREATE INDEX idx_admission_policies_year ON admission_policies(year) WHERE is_active = true;
+CREATE INDEX idx_admission_policies_code ON admission_policies(policy_code);
+
+-- Admission timeline indexes
+CREATE INDEX idx_admission_timeline_year ON admission_timeline(year) WHERE is_active = true;
+CREATE INDEX idx_admission_timeline_dates ON admission_timeline(start_date, end_date) WHERE is_active = true;

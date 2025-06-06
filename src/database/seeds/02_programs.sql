@@ -1,6 +1,7 @@
 -- =====================================================
 -- PROGRAMS SEED DATA
--- Purpose: Academic programs for FPT University
+-- Purpose: Academic programs for FPT University 2025
+-- Based on official FPT University program catalog
 -- =====================================================
 
 INSERT INTO programs (code, name, name_en, department_id, duration_years) VALUES

@@ -3,27 +3,7 @@
 -- Purpose: Views for program-related queries
 -- =====================================================
 
--- Programs with department info view (optimized for API responses)
-CREATE OR REPLACE VIEW v_programs_with_department AS
-SELECT
-    p.id,
-    p.code,
-    p.name,
-    p.name_en,
-    p.department_id,
-    p.duration_years,
-    p.is_active,
-    p.created_at,
-    p.updated_at,
-    jsonb_build_object(
-        'id', d.id,
-        'code', d.code,
-        'name', d.name,
-        'name_en', d.name_en
-    ) as department
-FROM programs p
-INNER JOIN departments d ON p.department_id = d.id
-WHERE p.is_active = true AND d.is_active = true;
+-- Note: v_programs_with_department removed - replaced by SQL functions for better performance
 
 -- Programs summary view for quick stats
 CREATE OR REPLACE VIEW v_programs_summary AS
@@ -52,23 +32,7 @@ WHERE d.is_active = true
 GROUP BY d.id, d.code, d.name
 ORDER BY d.name;
 
--- Recent programs view (last 30 days)
-CREATE OR REPLACE VIEW v_recent_programs AS
-SELECT
-    p.id,
-    p.code,
-    p.name,
-    p.name_en,
-    p.duration_years,
-    p.created_at,
-    d.code as department_code,
-    d.name as department_name
-FROM programs p
-INNER JOIN departments d ON p.department_id = d.id
-WHERE p.is_active = true 
-  AND d.is_active = true
-  AND p.created_at >= CURRENT_DATE - INTERVAL '30 days'
-ORDER BY p.created_at DESC;
+-- Note: v_recent_programs removed - unused feature, can be implemented with simple query if needed
 
 -- Program functions
 CREATE OR REPLACE FUNCTION get_programs_with_department(
@@ -127,6 +91,28 @@ BEGIN
     WHERE p.id = program_id
       AND p.is_active = true
       AND d.is_active = true;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Get program by code
+CREATE OR REPLACE FUNCTION get_program_by_code(program_code VARCHAR(20))
+RETURNS TABLE (
+    id UUID,
+    code VARCHAR(20),
+    name VARCHAR(255),
+    name_en VARCHAR(255),
+    department_id UUID,
+    duration_years INTEGER,
+    is_active BOOLEAN,
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT
+        p.id, p.code, p.name, p.name_en, p.department_id, p.duration_years, p.is_active, p.created_at, p.updated_at
+    FROM programs p
+    WHERE p.code = program_code AND p.is_active = true;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -249,18 +235,22 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Drop existing function first
+DROP FUNCTION IF EXISTS get_programs_count(VARCHAR(10));
+
 -- Get total count of active programs (with optional department filter)
+-- Optimized SQL function for simple, stable count operation
 CREATE OR REPLACE FUNCTION get_programs_count(
     department_code_filter VARCHAR(10) DEFAULT NULL
-) RETURNS BIGINT AS $$
-BEGIN
-    RETURN (
-        SELECT COUNT(*)
-        FROM programs p
-        INNER JOIN departments d ON p.department_id = d.id
-        WHERE p.is_active = true
-          AND d.is_active = true
-          AND (department_code_filter IS NULL OR d.code = department_code_filter)
-    );
-END;
-$$ LANGUAGE plpgsql;
+) RETURNS BIGINT
+LANGUAGE SQL
+STABLE
+PARALLEL SAFE
+AS $$
+    SELECT COUNT(*)::BIGINT
+    FROM programs p
+    INNER JOIN departments d ON p.department_id = d.id
+    WHERE p.is_active = true
+      AND d.is_active = true
+      AND (department_code_filter IS NULL OR d.code = department_code_filter);
+$$;
