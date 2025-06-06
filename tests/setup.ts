@@ -10,5 +10,8 @@ process.env.DATABASE_URL =
   "postgresql://postgres:postgres@localhost:5432/starter_test";
 process.env.PORT = process.env.PORT || "3001";
 process.env.LOG_LEVEL = process.env.LOG_LEVEL || "error"; // Reduce log noise in tests
+process.env.JWT_SECRET =
+  process.env.JWT_SECRET ||
+  "your-super-secret-jwt-key-at-least-32-characters-long";
 
 export {};
