@@ -12,9 +12,7 @@ import type { OpenAPIHono } from "@hono/zod-openapi";
  */
 function getServerConfig() {
   const baseUrl =
-    env.NODE_ENV === "production"
-      ? "https://your-domain.com" // Replace with actual production URL
-      : `http://localhost:${env.PORT}`;
+    env.NODE_ENV === "production" ? "/" : `http://localhost:${env.PORT}`;
 
   return [
     {
