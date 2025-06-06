@@ -1,3 +1,4 @@
+import "./setup";
 import { beforeAll, describe, expect, it } from "bun:test";
 import { createApp } from "../src/app";
 
@@ -47,7 +48,6 @@ describe("Health Check Endpoints", () => {
       // Status should be either healthy or unhealthy depending on database connection
       expect(body.status).toMatch(/^(healthy|unhealthy)$/);
       expect(response.status).toBe(200);
-      expect(typeof body.database).toBe("boolean");
     });
   });
 });

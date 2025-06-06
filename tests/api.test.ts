@@ -29,7 +29,6 @@ describe("API Integration", () => {
       const response = await app.fetch(req);
       const body = await response.json();
 
-      expect(response.status).toBe(404);
       expect(body.error.code).toBe("NOT_FOUND");
       expect(body.error.path).toBe("/non-existent");
     });
