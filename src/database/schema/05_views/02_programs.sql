@@ -120,9 +120,9 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION create_program_with_validation(
     p_code VARCHAR(20),
     p_name VARCHAR(255),
-    p_name_en VARCHAR(255) DEFAULT NULL,
     p_department_id UUID,
-    p_duration_years INTEGER
+    p_duration_years INTEGER,
+    p_name_en VARCHAR(255) DEFAULT NULL
 ) RETURNS TABLE (
     id UUID,
     code VARCHAR(20),
@@ -234,9 +234,6 @@ BEGIN
     RETURN TRUE;
 END;
 $$ LANGUAGE plpgsql;
-
--- Drop existing function first
-DROP FUNCTION IF EXISTS get_programs_count(VARCHAR(10));
 
 -- Get total count of active programs (with optional department filter)
 -- Optimized SQL function for simple, stable count operation
