@@ -1,6 +1,7 @@
 import type { OpenAPIHono } from "@hono/zod-openapi";
 import authRoutes from "@routes/auth/auth";
 import campusesRoutes from "@routes/campuses";
+import dashboardRoutes from "@routes/dashboard";
 import departmentsRoutes from "@routes/departments";
 import docsRoutes from "@routes/docs";
 import healthRoutes from "@routes/health";
@@ -31,6 +32,9 @@ export function setupRoutes(app: OpenAPIHono) {
 
   // Tuition routes
   app.route("/", tuitionRoutes);
+
+  // Dashboard routes
+  app.route("/", dashboardRoutes);
 
   return app;
 }
