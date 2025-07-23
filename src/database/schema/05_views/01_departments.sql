@@ -158,11 +158,11 @@ BEGIN
     -- Update department
     UPDATE departments
     SET
-        code = COALESCE(d_code, code),
-        name = COALESCE(d_name, name),
-        name_en = COALESCE(d_name_en, name_en),
-        description = COALESCE(d_description, description),
-        is_active = COALESCE(d_is_active, is_active),
+        code = COALESCE(d_code, departments.code),
+        name = COALESCE(d_name, departments.name),
+        name_en = COALESCE(d_name_en, departments.name_en),
+        description = COALESCE(d_description, departments.description),
+        is_active = COALESCE(d_is_active, departments.is_active),
         updated_at = CURRENT_TIMESTAMP
     WHERE departments.id = d_id;
 

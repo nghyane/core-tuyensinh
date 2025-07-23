@@ -120,9 +120,9 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION create_program_with_validation(
     p_code VARCHAR(20),
     p_name VARCHAR(255),
+    p_name_en VARCHAR(255) DEFAULT NULL,
     p_department_id UUID,
-    p_duration_years INTEGER,
-    p_name_en VARCHAR(255) DEFAULT NULL
+    p_duration_years INTEGER
 ) RETURNS TABLE (
     id UUID,
     code VARCHAR(20),
@@ -202,12 +202,12 @@ BEGIN
     -- Update program
     UPDATE programs
     SET
-        code = COALESCE(p_code, code),
-        name = COALESCE(p_name, name),
-        name_en = COALESCE(p_name_en, name_en),
-        department_id = COALESCE(p_department_id, department_id),
-        duration_years = COALESCE(p_duration_years, duration_years),
-        is_active = COALESCE(p_is_active, is_active),
+        code = COALESCE(p_code, programs.code),
+        name = COALESCE(p_name, programs.name),
+        name_en = COALESCE(p_name_en, programs.name_en),
+        department_id = COALESCE(p_department_id, programs.department_id),
+        duration_years = COALESCE(p_duration_years, programs.duration_years),
+        is_active = COALESCE(p_is_active, programs.is_active),
         updated_at = CURRENT_TIMESTAMP
     WHERE programs.id = p_id;
 
