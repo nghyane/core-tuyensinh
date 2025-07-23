@@ -5,6 +5,7 @@ import departmentsRoutes from "@routes/departments";
 import docsRoutes from "@routes/docs";
 import healthRoutes from "@routes/health";
 import programsRoutes from "@routes/programs";
+import tuitionRoutes from "@routes/tuition";
 
 /**
  * Aggregate all API routes
@@ -27,6 +28,9 @@ export function setupRoutes(app: OpenAPIHono) {
 
   // Campuses routes
   app.route("/", campusesRoutes);
+
+  // Tuition routes
+  app.route("/", tuitionRoutes);
 
   return app;
 }

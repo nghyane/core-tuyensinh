@@ -67,7 +67,7 @@ INSERT INTO chatbot_analytics (metric_date, metric_type, metric_value, metadata)
 
 -- Insert policy information for chatbot responses
 INSERT INTO admission_policies (policy_code, name, description, year, is_active) VALUES
-('ORIENTATION_MANDATORY', 'Kỳ định hướng bắt buộc', 'Tất cả sinh viên mới nhập học đều phải tham gia kỳ định hướng (1 học kỳ)', 2025, true),
+('ORIENT_MANDATORY', 'Kỳ định hướng bắt buộc', 'Tất cả sinh viên mới nhập học đều phải tham gia kỳ định hướng (1 học kỳ)', 2025, true),
 
 ('ENGLISH_CONDITIONAL', 'Kỳ tiếng Anh có điều kiện', 'Sinh viên có IELTS 6.0+ (hoặc tương đương) được miễn kỳ tiếng Anh. Sinh viên khác sẽ được xếp lớp theo trình độ (0-6 kỳ)', 2025, true),
 
