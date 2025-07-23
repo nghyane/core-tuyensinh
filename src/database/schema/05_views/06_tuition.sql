@@ -46,9 +46,9 @@ SELECT
     pt.updated_at
     
 FROM progressive_tuition pt
-JOIN programs p ON pt.program_id = p.id
-JOIN departments d ON p.department_id = d.id
-JOIN campuses c ON pt.campus_id = c.id
+INNER JOIN programs p ON pt.program_id = p.id
+INNER JOIN departments d ON p.department_id = d.id
+INNER JOIN campuses c ON pt.campus_id = c.id
 WHERE pt.is_active = true
   AND p.is_active = true
   AND c.is_active = true
@@ -288,19 +288,44 @@ STABLE
 AS $$
 BEGIN
     RETURN QUERY
-    SELECT * FROM v_tuition_summary
-    WHERE v_tuition_summary.id = tuition_id;
+    SELECT 
+        vs.id,
+        vs.year,
+        vs.program_id,
+        vs.program_code::TEXT,
+        vs.program_name::TEXT,
+        vs.program_name_en::TEXT,
+        vs.department_id,
+        vs.department_code::TEXT,
+        vs.department_name::TEXT,
+        vs.department_name_en::TEXT,
+        vs.campus_id,
+        vs.campus_code::TEXT,
+        vs.campus_name::TEXT,
+        vs.campus_city::TEXT,
+        vs.campus_discount,
+        vs.semester_group_1_3_fee,
+        vs.semester_group_4_6_fee,
+        vs.semester_group_7_9_fee,
+        vs.total_program_fee,
+        vs.min_semester_fee,
+        vs.max_semester_fee,
+        vs.is_active,
+        vs.created_at,
+        vs.updated_at
+    FROM v_tuition_summary vs
+    WHERE vs.id = tuition_id;
 END;
 $$;
 
 -- Create tuition with validation
 CREATE OR REPLACE FUNCTION create_tuition_with_validation(
-    p_program_id UUID,
-    p_campus_id UUID,
-    p_year INTEGER,
-    p_semester_group_1_3_fee NUMERIC,
-    p_semester_group_4_6_fee NUMERIC,
-    p_semester_group_7_9_fee NUMERIC
+    program_id_param UUID,
+    campus_id_param UUID,
+    year_param INTEGER,
+    semester_group_1_3_fee_param NUMERIC,
+    semester_group_4_6_fee_param NUMERIC,
+    semester_group_7_9_fee_param NUMERIC
 )
 RETURNS TABLE (
     id UUID,
@@ -334,33 +359,33 @@ DECLARE
     new_tuition_id UUID;
 BEGIN
     -- Validate program exists and is active
-    IF NOT EXISTS (SELECT 1 FROM programs WHERE programs.id = p_program_id AND programs.is_active = true) THEN
+    IF NOT EXISTS (SELECT 1 FROM programs WHERE programs.id = program_id_param AND programs.is_active = true) THEN
         RAISE EXCEPTION 'Program not found or inactive' USING ERRCODE = 'P0003';
     END IF;
 
     -- Validate campus exists and is active
-    IF NOT EXISTS (SELECT 1 FROM campuses WHERE campuses.id = p_campus_id AND campuses.is_active = true) THEN
+    IF NOT EXISTS (SELECT 1 FROM campuses WHERE campuses.id = campus_id_param AND campuses.is_active = true) THEN
         RAISE EXCEPTION 'Campus not found or inactive' USING ERRCODE = 'P0003';
     END IF;
 
     -- Check if tuition already exists for this program, campus, and year
     IF EXISTS (
-        SELECT 1 FROM progressive_tuition
-        WHERE program_id = p_program_id
-          AND campus_id = p_campus_id
-          AND progressive_tuition.year = p_year
-          AND progressive_tuition.is_active = true
+        SELECT 1 FROM progressive_tuition pt
+        WHERE pt.program_id = program_id_param
+          AND pt.campus_id = campus_id_param
+          AND pt.year = year_param
+          AND pt.is_active = true
     ) THEN
-        RAISE EXCEPTION 'Tuition already exists for this program and campus in year %', p_year USING ERRCODE = 'P0004';
+        RAISE EXCEPTION 'Tuition already exists for this program and campus in year %', year_param USING ERRCODE = 'P0004';
     END IF;
 
     -- Validate fee amounts are positive
-    IF p_semester_group_1_3_fee <= 0 OR p_semester_group_4_6_fee <= 0 OR p_semester_group_7_9_fee <= 0 THEN
+    IF semester_group_1_3_fee_param <= 0 OR semester_group_4_6_fee_param <= 0 OR semester_group_7_9_fee_param <= 0 THEN
         RAISE EXCEPTION 'All semester fees must be positive' USING ERRCODE = 'P0005';
     END IF;
 
     -- Validate year range
-    IF p_year < 2020 OR p_year > 2030 THEN
+    IF year_param < 2020 OR year_param > 2030 THEN
         RAISE EXCEPTION 'Year must be between 2020 and 2030' USING ERRCODE = 'P0005';
     END IF;
 
@@ -373,12 +398,12 @@ BEGIN
         semester_group_4_6_fee,
         semester_group_7_9_fee
     ) VALUES (
-        p_program_id,
-        p_campus_id,
-        p_year,
-        p_semester_group_1_3_fee,
-        p_semester_group_4_6_fee,
-        p_semester_group_7_9_fee
+        program_id_param,
+        campus_id_param,
+        year_param,
+        semester_group_1_3_fee_param,
+        semester_group_4_6_fee_param,
+        semester_group_7_9_fee_param
     ) RETURNING progressive_tuition.id INTO new_tuition_id;
 
     -- Return the created tuition with full details

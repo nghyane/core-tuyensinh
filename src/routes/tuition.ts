@@ -224,6 +224,14 @@ const createTuitionRoute = createRoute({
       },
       description: "Tuition already exists for this program and campus",
     },
+    500: {
+      content: {
+        "application/json": {
+          schema: tuitionErrorSchema,
+        },
+      },
+      description: "Internal server error",
+    },
   },
 });
 

@@ -2,6 +2,7 @@
  * Tuition handlers - Request handlers for tuition operations
  */
 
+import { db } from "@config/database";
 import { TuitionService } from "@services/tuition.service";
 import type { Context } from "hono";
 
@@ -226,8 +227,6 @@ export const deleteTuitionHandler = async (c: Context) => {
 export const getTuitionSummaryHandler = async (c: Context) => {
   const year = Number(c.req.query("year")) || 2025;
 
-  // Get overall statistics using direct db import
-  const { db } = await import("@config/database");
   const [stats] = await db`
     SELECT 
       COUNT(*) as total_records,

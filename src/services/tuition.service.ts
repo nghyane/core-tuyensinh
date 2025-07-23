@@ -209,15 +209,15 @@ export class TuitionService extends BaseService<
    */
   async create(data: CreateTuitionRequest): Promise<TuitionSummary> {
     const [tuition] = await db`
-      SELECT * FROM create_tuition_with_validation(
-        ${data.program_id},
-        ${data.campus_id},
-        ${data.year},
-        ${data.semester_group_1_3_fee},
-        ${data.semester_group_4_6_fee},
-        ${data.semester_group_7_9_fee}
-      )
-    `;
+        SELECT * FROM create_tuition_with_validation(
+          ${data.program_id},
+          ${data.campus_id},
+          ${data.year},
+          ${data.semester_group_1_3_fee},
+          ${data.semester_group_4_6_fee},
+          ${data.semester_group_7_9_fee}
+        )
+      `;
 
     return this.parseOne(tuition);
   }
