@@ -9,6 +9,7 @@ import healthRoutes from "@routes/health";
 import programsRoutes from "@routes/programs";
 import scholarshipsRoutes from "@routes/scholarships";
 import tuitionRoutes from "@routes/tuition";
+import usersRoutes from "@routes/users";
 
 /**
  * Aggregate all API routes
@@ -43,6 +44,9 @@ export function setupRoutes(app: OpenAPIHono) {
 
   // Admission Methods routes
   app.route("/", admissionMethodsRoutes);
+
+  // Users routes
+  app.route("/", usersRoutes);
 
   return app;
 }
