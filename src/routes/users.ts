@@ -195,6 +195,14 @@ const deleteUserRoute = createRoute({
       },
       description: "User not found",
     },
+    500: {
+      content: {
+        "application/json": {
+          schema: userErrorSchema,
+        },
+      },
+      description: "Internal Server Error",
+    },
   },
 });
 
