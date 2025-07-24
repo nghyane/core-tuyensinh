@@ -140,46 +140,26 @@ ORDER BY c.name;
 -- =====================================================
 
 -- Function to get tuition with custom filters and calculations
+-- Returns full v_tuition_summary record for consistency
 CREATE OR REPLACE FUNCTION get_tuition_with_filters(
     p_program_codes text[] DEFAULT NULL,
     p_campus_codes text[] DEFAULT NULL,
     p_year integer DEFAULT 2025,
     p_include_inactive boolean DEFAULT false
 )
-RETURNS TABLE (
-    program_code text,
-    program_name text,
-    campus_code text,
-    campus_name text,
-    semester_1_3_fee numeric,
-    semester_4_6_fee numeric,
-    semester_7_9_fee numeric,
-    total_program_fee numeric,
-    effective_discount numeric
-)
+RETURNS SETOF v_tuition_summary -- Return type is the view itself
 LANGUAGE plpgsql
 STABLE
 AS $$
 BEGIN
     RETURN QUERY
-    SELECT
-        p.code::text,
-        p.name::text,
-        c.code::text,
-        c.name::text,
-        pt.semester_group_1_3_fee,
-        pt.semester_group_4_6_fee,
-        pt.semester_group_7_9_fee,
-        (pt.semester_group_1_3_fee * 3 + pt.semester_group_4_6_fee * 3 + pt.semester_group_7_9_fee * 3),
-        c.discount_percentage
-    FROM progressive_tuition pt
-    JOIN programs p ON pt.program_id = p.id
-    JOIN campuses c ON pt.campus_id = c.id
-    WHERE pt.year = p_year
-      AND (p_include_inactive OR (pt.is_active AND p.is_active AND c.is_active))
-      AND (p_program_codes IS NULL OR p.code = ANY(p_program_codes))
-      AND (p_campus_codes IS NULL OR c.code = ANY(p_campus_codes))
-    ORDER BY p.name, c.name;
+    SELECT *
+    FROM v_tuition_summary vts
+    WHERE vts.year = p_year
+      AND (p_include_inactive OR vts.is_active = true)
+      AND (p_program_codes IS NULL OR vts.program_code = ANY(p_program_codes))
+      AND (p_campus_codes IS NULL OR vts.campus_code = ANY(p_campus_codes))
+    ORDER BY vts.department_name, vts.program_name, vts.campus_name;
 END;
 $$;
 
@@ -317,227 +297,3 @@ BEGIN
     WHERE vs.id = tuition_id;
 END;
 $$;
-
--- Create tuition with validation
-CREATE OR REPLACE FUNCTION create_tuition_with_validation(
-    program_id_param UUID,
-    campus_id_param UUID,
-    year_param INTEGER,
-    semester_group_1_3_fee_param NUMERIC,
-    semester_group_4_6_fee_param NUMERIC,
-    semester_group_7_9_fee_param NUMERIC
-)
-RETURNS TABLE (
-    id UUID,
-    year INTEGER,
-    program_id UUID,
-    program_code TEXT,
-    program_name TEXT,
-    program_name_en TEXT,
-    department_id UUID,
-    department_code TEXT,
-    department_name TEXT,
-    department_name_en TEXT,
-    campus_id UUID,
-    campus_code TEXT,
-    campus_name TEXT,
-    campus_city TEXT,
-    campus_discount NUMERIC,
-    semester_group_1_3_fee NUMERIC,
-    semester_group_4_6_fee NUMERIC,
-    semester_group_7_9_fee NUMERIC,
-    total_program_fee NUMERIC,
-    min_semester_fee NUMERIC,
-    max_semester_fee NUMERIC,
-    is_active BOOLEAN,
-    created_at TIMESTAMP,
-    updated_at TIMESTAMP
-)
-LANGUAGE plpgsql
-AS $$
-DECLARE
-    new_tuition_id UUID;
-BEGIN
-    -- Validate program exists and is active
-    IF NOT EXISTS (SELECT 1 FROM programs WHERE programs.id = program_id_param AND programs.is_active = true) THEN
-        RAISE EXCEPTION 'Program not found or inactive' USING ERRCODE = 'P0003';
-    END IF;
-
-    -- Validate campus exists and is active
-    IF NOT EXISTS (SELECT 1 FROM campuses WHERE campuses.id = campus_id_param AND campuses.is_active = true) THEN
-        RAISE EXCEPTION 'Campus not found or inactive' USING ERRCODE = 'P0003';
-    END IF;
-
-    -- Check if tuition already exists for this program, campus, and year
-    IF EXISTS (
-        SELECT 1 FROM progressive_tuition pt
-        WHERE pt.program_id = program_id_param
-          AND pt.campus_id = campus_id_param
-          AND pt.year = year_param
-          AND pt.is_active = true
-    ) THEN
-        RAISE EXCEPTION 'Tuition already exists for this program and campus in year %', year_param USING ERRCODE = 'P0004';
-    END IF;
-
-    -- Validate fee amounts are positive
-    IF semester_group_1_3_fee_param <= 0 OR semester_group_4_6_fee_param <= 0 OR semester_group_7_9_fee_param <= 0 THEN
-        RAISE EXCEPTION 'All semester fees must be positive' USING ERRCODE = 'P0005';
-    END IF;
-
-    -- Validate year range
-    IF year_param < 2020 OR year_param > 2030 THEN
-        RAISE EXCEPTION 'Year must be between 2020 and 2030' USING ERRCODE = 'P0005';
-    END IF;
-
-    -- Insert new tuition record
-    INSERT INTO progressive_tuition (
-        program_id,
-        campus_id,
-        year,
-        semester_group_1_3_fee,
-        semester_group_4_6_fee,
-        semester_group_7_9_fee
-    ) VALUES (
-        program_id_param,
-        campus_id_param,
-        year_param,
-        semester_group_1_3_fee_param,
-        semester_group_4_6_fee_param,
-        semester_group_7_9_fee_param
-    ) RETURNING progressive_tuition.id INTO new_tuition_id;
-
-    -- Return the created tuition with full details
-    RETURN QUERY
-    SELECT * FROM get_tuition_by_id_with_details(new_tuition_id);
-END;
-$$;
-
--- Update tuition with validation
-CREATE OR REPLACE FUNCTION update_tuition_with_validation(
-    p_id UUID,
-    p_program_id UUID DEFAULT NULL,
-    p_campus_id UUID DEFAULT NULL,
-    p_year INTEGER DEFAULT NULL,
-    p_semester_group_1_3_fee NUMERIC DEFAULT NULL,
-    p_semester_group_4_6_fee NUMERIC DEFAULT NULL,
-    p_semester_group_7_9_fee NUMERIC DEFAULT NULL,
-    p_is_active BOOLEAN DEFAULT NULL
-)
-RETURNS TABLE (
-    id UUID,
-    year INTEGER,
-    program_id UUID,
-    program_code TEXT,
-    program_name TEXT,
-    program_name_en TEXT,
-    department_id UUID,
-    department_code TEXT,
-    department_name TEXT,
-    department_name_en TEXT,
-    campus_id UUID,
-    campus_code TEXT,
-    campus_name TEXT,
-    campus_city TEXT,
-    campus_discount NUMERIC,
-    semester_group_1_3_fee NUMERIC,
-    semester_group_4_6_fee NUMERIC,
-    semester_group_7_9_fee NUMERIC,
-    total_program_fee NUMERIC,
-    min_semester_fee NUMERIC,
-    max_semester_fee NUMERIC,
-    is_active BOOLEAN,
-    created_at TIMESTAMP,
-    updated_at TIMESTAMP
-)
-LANGUAGE plpgsql
-AS $$
-BEGIN
-    -- Check if tuition exists
-    IF NOT EXISTS (SELECT 1 FROM progressive_tuition WHERE progressive_tuition.id = p_id) THEN
-        RAISE EXCEPTION 'Tuition record not found' USING ERRCODE = 'P0003';
-    END IF;
-
-    -- Validate program if provided
-    IF p_program_id IS NOT NULL AND NOT EXISTS (SELECT 1 FROM programs WHERE programs.id = p_program_id AND programs.is_active = true) THEN
-        RAISE EXCEPTION 'Program not found or inactive' USING ERRCODE = 'P0003';
-    END IF;
-
-    -- Validate campus if provided
-    IF p_campus_id IS NOT NULL AND NOT EXISTS (SELECT 1 FROM campuses WHERE campuses.id = p_campus_id AND campuses.is_active = true) THEN
-        RAISE EXCEPTION 'Campus not found or inactive' USING ERRCODE = 'P0003';
-    END IF;
-
-    -- Validate fee amounts if provided
-    IF (p_semester_group_1_3_fee IS NOT NULL AND p_semester_group_1_3_fee <= 0) OR
-       (p_semester_group_4_6_fee IS NOT NULL AND p_semester_group_4_6_fee <= 0) OR
-       (p_semester_group_7_9_fee IS NOT NULL AND p_semester_group_7_9_fee <= 0) THEN
-        RAISE EXCEPTION 'All semester fees must be positive' USING ERRCODE = 'P0005';
-    END IF;
-
-    -- Validate year if provided
-    IF p_year IS NOT NULL AND (p_year < 2020 OR p_year > 2030) THEN
-        RAISE EXCEPTION 'Year must be between 2020 and 2030' USING ERRCODE = 'P0005';
-    END IF;
-
-    -- Check for duplicate if program, campus, or year is being changed
-    IF (p_program_id IS NOT NULL OR p_campus_id IS NOT NULL OR p_year IS NOT NULL) THEN
-        IF EXISTS (
-            SELECT 1 FROM progressive_tuition pt
-            WHERE pt.id != p_id
-              AND pt.program_id = COALESCE(p_program_id, (SELECT program_id FROM progressive_tuition WHERE progressive_tuition.id = p_id))
-              AND pt.campus_id = COALESCE(p_campus_id, (SELECT campus_id FROM progressive_tuition WHERE progressive_tuition.id = p_id))
-              AND pt.year = COALESCE(p_year, (SELECT progressive_tuition.year FROM progressive_tuition WHERE progressive_tuition.id = p_id))
-              AND pt.is_active = true
-        ) THEN
-            RAISE EXCEPTION 'Tuition already exists for this program and campus in the specified year' USING ERRCODE = 'P0004';
-        END IF;
-    END IF;
-
-    -- Update the tuition record
-    UPDATE progressive_tuition SET
-        program_id = COALESCE(p_program_id, program_id),
-        campus_id = COALESCE(p_campus_id, campus_id),
-        year = COALESCE(p_year, year),
-        semester_group_1_3_fee = COALESCE(p_semester_group_1_3_fee, semester_group_1_3_fee),
-        semester_group_4_6_fee = COALESCE(p_semester_group_4_6_fee, semester_group_4_6_fee),
-        semester_group_7_9_fee = COALESCE(p_semester_group_7_9_fee, semester_group_7_9_fee),
-        is_active = COALESCE(p_is_active, is_active),
-        updated_at = CURRENT_TIMESTAMP
-    WHERE progressive_tuition.id = p_id;
-
-    -- Return the updated tuition with full details
-    RETURN QUERY
-    SELECT * FROM get_tuition_by_id_with_details(p_id);
-END;
-$$;
-
--- Delete tuition with validation
-CREATE OR REPLACE FUNCTION delete_tuition_with_validation(p_id UUID)
-RETURNS BOOLEAN AS $$
-BEGIN
-    -- Check if tuition exists
-    IF NOT EXISTS (SELECT 1 FROM progressive_tuition WHERE id = p_id AND progressive_tuition.is_active = true) THEN
-        RAISE EXCEPTION 'Tuition record not found' USING ERRCODE = 'P0003';
-    END IF;
-
-    -- Check if tuition is referenced by any applications (if applications table exists)
-    -- This is a soft constraint - we'll just warn but allow deletion
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'applications') THEN
-        IF EXISTS (
-            SELECT 1 FROM applications a
-            JOIN programs p ON a.program_id = p.id
-            JOIN progressive_tuition pt ON pt.program_id = p.id AND pt.campus_id = a.campus_id
-            WHERE pt.id = p_id AND a.status != 'cancelled'
-        ) THEN
-            RAISE WARNING 'Tuition record is referenced by active applications';
-        END IF;
-    END IF;
-
-    -- Soft delete the tuition record
-    UPDATE progressive_tuition
-    SET is_active = false, updated_at = CURRENT_TIMESTAMP
-    WHERE id = p_id;
-
-    RETURN true;
-END;
-$$ LANGUAGE plpgsql;

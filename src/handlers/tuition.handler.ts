@@ -154,26 +154,28 @@ export const getTuitionWithFiltersHandler = async (c: Context) => {
 export const createTuitionHandler = async (c: Context) => {
   const data = await c.req.json();
 
-  // Check if tuition already exists for this program and campus
-  const exists = await tuitionService.existsForProgramAndCampus(
-    data.program_id,
-    data.campus_id,
-    data.year
-  );
-
-  if (exists) {
+  try {
+    const tuition = await tuitionService.create(data);
+    return c.json({ data: tuition }, 201);
+  } catch (error: any) {
+    if (error.message.includes("already exists")) {
+      return c.json(
+        {
+          error: "CONFLICT",
+          message: error.message,
+        },
+        409
+      );
+    }
+    // Handle other validation errors from the service
     return c.json(
       {
-        error: "CONFLICT",
-        message:
-          "Tuition already exists for this program and campus in the specified year",
+        error: "VALIDATION_ERROR",
+        message: error.message,
       },
-      409
+      400
     );
   }
-
-  const tuition = await tuitionService.create(data);
-  return c.json({ data: tuition }, 201);
 };
 
 /**
@@ -183,20 +185,18 @@ export const updateTuitionHandler = async (c: Context) => {
   const id = c.req.param("id");
   const data = await c.req.json();
 
-  // Check if tuition exists
-  const existing = await tuitionService.findById(id);
-  if (!existing) {
-    return c.json(
-      {
-        error: "NOT_FOUND",
-        message: "Tuition record not found",
-      },
-      404
-    );
+  try {
+    const tuition = await tuitionService.update(id, data);
+    return c.json({ data: tuition }, 200);
+  } catch (error: any) {
+    if (error.message.includes("not found")) {
+      return c.json({ error: "NOT_FOUND", message: error.message }, 404);
+    }
+    if (error.message.includes("already exists")) {
+      return c.json({ error: "CONFLICT", message: error.message }, 409);
+    }
+    return c.json({ error: "VALIDATION_ERROR", message: error.message }, 400);
   }
-
-  const tuition = await tuitionService.update(id, data);
-  return c.json({ data: tuition }, 200);
 };
 
 /**
@@ -205,20 +205,19 @@ export const updateTuitionHandler = async (c: Context) => {
 export const deleteTuitionHandler = async (c: Context) => {
   const id = c.req.param("id");
 
-  // Check if tuition exists
-  const existing = await tuitionService.findById(id);
-  if (!existing) {
+  try {
+    await tuitionService.delete(id);
+    return c.json({ message: "Tuition record deleted successfully" }, 200);
+  } catch (error: any) {
+    if (error.message.includes("not found")) {
+      return c.json({ error: "NOT_FOUND", message: error.message }, 404);
+    }
+    // Generic error for other issues
     return c.json(
-      {
-        error: "NOT_FOUND",
-        message: "Tuition record not found",
-      },
-      404
+      { error: "INTERNAL_SERVER_ERROR", message: error.message },
+      500
     );
   }
-
-  await tuitionService.delete(id);
-  return c.json({ message: "Tuition record deleted successfully" }, 200);
 };
 
 /**

@@ -142,21 +142,16 @@ export class TuitionService extends BaseService<
       year = 2025,
     } = params;
 
-    try {
-      const [result] = await db`
-        SELECT * FROM calculate_total_program_cost(
-          ${program_code}, 
-          ${campus_code}, 
-          ${year}, 
-          ${has_ielts}
-        )
-      `;
+    const [result] = await db`
+      SELECT * FROM calculate_total_program_cost(
+        ${program_code}, 
+        ${campus_code}, 
+        ${year}, 
+        ${has_ielts}
+      )
+    `;
 
-      return result ? tuitionCalculationSchema.parse(result) : null;
-    } catch (error) {
-      // Handle case where program or campus not found
-      return null;
-    }
+    return result ? tuitionCalculationSchema.parse(result) : null;
   }
 
   /**
@@ -178,80 +173,176 @@ export class TuitionService extends BaseService<
       )
     `;
 
-    // Transform function result to match TuitionSummary interface
-    return rows.map((row: any) => ({
-      id: row.id || "",
-      year,
-      program_id: "",
-      program_code: row.program_code,
-      program_name: row.program_name,
-      program_name_en: undefined,
-      department_id: "",
-      department_code: "",
-      department_name: "",
-      department_name_en: undefined,
-      campus_id: "",
-      campus_code: row.campus_code,
-      campus_name: row.campus_name,
-      campus_city: "",
-      campus_discount: row.effective_discount,
-      semester_group_1_3_fee: row.semester_1_3_fee,
-      semester_group_4_6_fee: row.semester_4_6_fee,
-      semester_group_7_9_fee: row.semester_7_9_fee,
-      total_program_fee: row.total_program_fee,
-      min_semester_fee: row.semester_1_3_fee,
-      max_semester_fee: row.semester_7_9_fee,
-    }));
+    return this.parseMany(rows);
   }
 
   /**
    * Create new tuition record using validation function
    */
   async create(data: CreateTuitionRequest): Promise<TuitionSummary> {
-    const [tuition] = await db`
-        SELECT * FROM create_tuition_with_validation(
-          ${data.program_id},
-          ${data.campus_id},
-          ${data.year},
-          ${data.semester_group_1_3_fee},
-          ${data.semester_group_4_6_fee},
-          ${data.semester_group_7_9_fee}
+    const validatedData = this.createSchema.parse(data);
+
+    return db.begin(async (tx) => {
+      // 1. Validate program exists and is active
+      const [program] = await tx`
+        SELECT id FROM programs WHERE id = ${validatedData.program_id} AND is_active = true
+      `;
+      if (!program) {
+        throw new Error("Program not found or inactive");
+      }
+
+      // 2. Validate campus exists and is active
+      const [campus] = await tx`
+        SELECT id FROM campuses WHERE id = ${validatedData.campus_id} AND is_active = true
+      `;
+      if (!campus) {
+        throw new Error("Campus not found or inactive");
+      }
+
+      // 3. Check for existing tuition record
+      const [existing] = await tx`
+        SELECT id FROM progressive_tuition
+        WHERE program_id = ${validatedData.program_id}
+          AND campus_id = ${validatedData.campus_id}
+          AND year = ${validatedData.year}
+          AND is_active = true
+      `;
+      if (existing) {
+        throw new Error(
+          `Tuition already exists for this program and campus in year ${validatedData.year}`
+        );
+      }
+
+      // 4. Insert new record
+      const [newTuition] = await tx`
+        INSERT INTO progressive_tuition (
+          program_id, campus_id, year,
+          semester_group_1_3_fee, semester_group_4_6_fee, semester_group_7_9_fee
+        ) VALUES (
+          ${validatedData.program_id}, ${validatedData.campus_id}, ${validatedData.year},
+          ${validatedData.semester_group_1_3_fee}, ${validatedData.semester_group_4_6_fee}, ${validatedData.semester_group_7_9_fee}
         )
+        RETURNING id
       `;
 
-    return this.parseOne(tuition);
+      // 5. Fetch and return the full summary from the view
+      const [result] = await tx`
+        SELECT * FROM v_tuition_summary WHERE id = ${newTuition.id}
+      `;
+
+      return this.parseOne(result);
+    });
   }
 
   /**
-   * Update tuition record using validation function
+   * Update tuition record with in-app validation
    */
   async update(
     id: string,
     data: UpdateTuitionRequest
   ): Promise<TuitionSummary> {
-    const [tuition] = await db`
-      SELECT * FROM update_tuition_with_validation(
-        ${id},
-        ${data.program_id},
-        ${data.campus_id},
-        ${data.year},
-        ${data.semester_group_1_3_fee},
-        ${data.semester_group_4_6_fee},
-        ${data.semester_group_7_9_fee},
-        ${data.is_active}
-      )
-    `;
+    const validatedData = this.updateSchema.parse(data);
 
-    return this.parseOne(tuition);
+    // Prevent updating with an empty object
+    if (Object.keys(validatedData).length === 0) {
+      const currentTuition = await this.findById(id);
+      if (!currentTuition) {
+        throw new Error("Tuition record not found");
+      }
+      return currentTuition;
+    }
+
+    return db.begin(async (tx) => {
+      // 1. Ensure the record exists
+      const [currentTarget] = await tx`
+        SELECT program_id, campus_id, year FROM progressive_tuition WHERE id = ${id}
+      `;
+      if (!currentTarget) {
+        throw new Error("Tuition record not found");
+      }
+
+      // 2. Validate foreign keys if they are being changed
+      if (validatedData.program_id) {
+        const [program] =
+          await tx`SELECT id FROM programs WHERE id = ${validatedData.program_id} AND is_active = true`;
+        if (!program) throw new Error("Program not found or inactive");
+      }
+      if (validatedData.campus_id) {
+        const [campus] =
+          await tx`SELECT id FROM campuses WHERE id = ${validatedData.campus_id} AND is_active = true`;
+        if (!campus) throw new Error("Campus not found or inactive");
+      }
+
+      // 3. Check for uniqueness constraint violation if identifiers are changed
+      const programId = validatedData.program_id || currentTarget.program_id;
+      const campusId = validatedData.campus_id || currentTarget.campus_id;
+      const year = validatedData.year || currentTarget.year;
+
+      if (
+        validatedData.program_id ||
+        validatedData.campus_id ||
+        validatedData.year
+      ) {
+        const [existing] = await tx`
+          SELECT id FROM progressive_tuition
+          WHERE program_id = ${programId}
+            AND campus_id = ${campusId}
+            AND year = ${year}
+            AND id != ${id}
+            AND is_active = true
+        `;
+        if (existing) {
+          throw new Error(
+            `Tuition already exists for this program and campus in year ${year}`
+          );
+        }
+      }
+
+      // 4. Build and execute the update query
+      const [updated] = await tx`
+        UPDATE progressive_tuition SET ${tx(
+          validatedData,
+          "program_id",
+          "campus_id",
+          "year",
+          "semester_group_1_3_fee",
+          "semester_group_4_6_fee",
+          "semester_group_7_9_fee",
+          "is_active"
+        )}, updated_at = CURRENT_TIMESTAMP
+        WHERE id = ${id}
+        RETURNING id
+      `;
+
+      // 5. Fetch and return the full summary from the view
+      const [result] = await tx`
+        SELECT * FROM v_tuition_summary WHERE id = ${updated.id}
+      `;
+
+      return this.parseOne(result);
+    });
   }
 
   /**
-   * Delete tuition record using validation function
+   * Soft delete tuition record with in-app validation
    */
   async delete(id: string): Promise<void> {
-    await db`
-      SELECT delete_tuition_with_validation(${id})
-    `;
+    await db.begin(async (tx) => {
+      // 1. Ensure the record exists and is active
+      const [target] = await tx`
+        SELECT id FROM progressive_tuition WHERE id = ${id} AND is_active = true
+      `;
+      if (!target) {
+        throw new Error("Tuition record not found or already inactive");
+      }
+
+      // 2. Soft delete the record
+      await tx`
+        UPDATE progressive_tuition
+        SET is_active = false, updated_at = CURRENT_TIMESTAMP
+        WHERE id = ${id}
+      `;
+    });
   }
 
   /**
