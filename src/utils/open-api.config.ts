@@ -13,6 +13,7 @@ import type { OpenAPIHono } from "@hono/zod-openapi";
 function getServerConfig() {
   return [
     {
+      url: null as unknown as string,
       description:
         env.NODE_ENV === "production"
           ? "Production server"
