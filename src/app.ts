@@ -58,18 +58,23 @@ export function createApp() {
 
   // 404 handler
   app.notFound((c) => {
-    return c.json({
-      error: {
-        code: ERROR_CODES.NOT_FOUND,
-        message: "The requested resource was not found",
-        path: c.req.path,
-        method: c.req.method,
-        timestamp: new Date().toISOString(),
+    return c.json(
+      {
+        error: {
+          code: ERROR_CODES.NOT_FOUND,
+          message: "The requested resource was not found",
+          path: c.req.path,
+          method: c.req.method,
+          timestamp: new Date().toISOString(),
+        },
       },
-    });
+      404
+    );
   });
 
-  app.onError(errorHandler);
+  app.onError((err, c) => {
+    return errorHandler(err, c);
+  });
 
   return app;
 }

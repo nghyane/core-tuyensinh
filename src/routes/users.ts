@@ -24,13 +24,11 @@ import {
 
 const app = new OpenAPIHono();
 
-// All routes in this file require admin access
-app.use("*", authMiddleware, requireAdmin);
-
 // Get all users route
 const getUsersRoute = createRoute({
   method: "get",
   path: "/api/v1/users",
+  middleware: [authMiddleware, requireAdmin] as const,
   summary: "Get all users",
   description: "Retrieve all users with filtering support.",
   tags: ["Users"],
@@ -53,6 +51,7 @@ const getUsersRoute = createRoute({
 const getUserByIdRoute = createRoute({
   method: "get",
   path: "/api/v1/users/{id}",
+  middleware: [authMiddleware, requireAdmin] as const,
   summary: "Get a single user by ID",
   description: "Retrieve a specific user by their unique ID.",
   tags: ["Users"],
@@ -83,6 +82,7 @@ const getUserByIdRoute = createRoute({
 const createUserRoute = createRoute({
   method: "post",
   path: "/api/v1/users",
+  middleware: [authMiddleware, requireAdmin] as const,
   summary: "Create a new user",
   description: "Create a new user record.",
   tags: ["Users"],
@@ -127,6 +127,7 @@ const createUserRoute = createRoute({
 const updateUserRoute = createRoute({
   method: "put",
   path: "/api/v1/users/{id}",
+  middleware: [authMiddleware, requireAdmin] as const,
   summary: "Update an existing user",
   description: "Update an existing user record.",
   tags: ["Users"],
@@ -172,6 +173,7 @@ const updateUserRoute = createRoute({
 const deleteUserRoute = createRoute({
   method: "delete",
   path: "/api/v1/users/{id}",
+  middleware: [authMiddleware, requireAdmin] as const,
   summary: "Delete a user",
   description: "Soft delete a user record by their ID.",
   tags: ["Users"],

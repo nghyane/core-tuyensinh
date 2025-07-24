@@ -16,29 +16,6 @@ export const errorHandler = async (err: Error, c: Context) => {
 
   // Handle HTTPException first (Hono best practice)
   if (err instanceof HTTPException) {
-    // Use HTTPException's built-in response if available
-    if (err.res) {
-      logger.warn(
-        {
-          status: err.status,
-          message: err.message,
-          requestId,
-        },
-        "HTTP exception with custom response"
-      );
-      return err.getResponse();
-    }
-
-    // Standard HTTPException handling
-    logger.warn(
-      {
-        status: err.status,
-        message: err.message,
-        requestId,
-      },
-      "HTTP exception"
-    );
-
     return c.json(
       {
         error: {
