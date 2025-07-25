@@ -57,3 +57,5 @@ demo-*.ts
 # Temporary files
 tmp/
 temp/
+
+.bun/

@@ -13,7 +13,7 @@ export const userSchema = z.object({
   password_hash: z.string(),
   role: z.nativeEnum(UserRole),
   is_active: z.boolean().default(true),
-  last_login_at: z.date().optional(),
+  last_login_at: z.date().nullable().optional(),
   created_at: z.date(),
   updated_at: z.date(),
 });
